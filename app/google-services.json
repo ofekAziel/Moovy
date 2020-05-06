@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "258455856106",
+    "firebase_url": "https://muvy-f3f4e.firebaseio.com",
+    "project_id": "muvy-f3f4e",
+    "storage_bucket": "muvy-f3f4e.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:258455856106:android:255f0c6c0ec1f98b7c8893",
+        "android_client_info": {
+          "package_name": "com.example.moovy"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "258455856106-ukosi8dac2rsi10ae05colbbuhdl4mgc.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAhUPDvWE7K_BvI4QVemUmPv7xsXk7X__I"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "258455856106-ukosi8dac2rsi10ae05colbbuhdl4mgc.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
