@@ -2,6 +2,7 @@ package com.example.moovy.ui.login;
 
 import android.app.Activity;
 
+import androidx.annotation.NonNull;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProviders;
 
@@ -15,6 +16,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
@@ -25,15 +27,12 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.moovy.R;
-import com.example.moovy.ui.login.LoginViewModel;
-import com.example.moovy.ui.login.LoginViewModelFactory;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-
-import org.w3c.dom.Text;
 
 public class LoginActivity extends AppCompatActivity {
 
@@ -139,27 +138,32 @@ public class LoginActivity extends AppCompatActivity {
                             Toast.LENGTH_LONG).show();
                     return;
                 }
-                mAuth.signInWithEmailAndPassword(email, password)
-                        .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
-                            public void onComplete(@NonNull Task<AuthResult> task) {
-                                if (task.isSuccessful()) {
-                                    // Sign in success, update UI with the signed-in user's information
-                                    //Log.d(TAG, "signInWithEmail:success");
-                                    FirebaseUser user = mAuth.getCurrentUser();
-                                    updateUI(user);
-                                } else {
-                                    // If sign in fails, display a message to the user.
-                                    //Log.w(TAG, "signInWithEmail:failure", task.getException());
-                                    Toast.makeText(LoginActivity.this, "Authentication failed.",
-                                            Toast.LENGTH_SHORT).show();
-                                    updateUI(null);
-                                }
 
-                                // ...
-                            }
-                        });
+                firebaseAuthWithGoogle(email, password);
             }
         });
+    }
+
+    private void firebaseAuthWithGoogle(String email, String password) {
+        mAuth.signInWithEmailAndPassword(email, password)
+                .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
+                    @Override
+                    public void onComplete(@NonNull Task<AuthResult> task) {
+                        if (task.isSuccessful()) {
+                            // Sign in success, update UI with the signed-in user's information
+                            System.out.println("succes");
+                            FirebaseUser user = mAuth.getCurrentUser();
+                            updateUI(user);
+                        } else {
+                            // If sign in fails, display a message to the user.
+//                            Log.w(TAG, "signInWithCredential:failure", task.getException());
+//                            Snackbar.make(mBinding.mainLayout, "Authentication Failed.", Snackbar.LENGTH_SHORT).show();
+                            updateUI(null);
+                        }
+
+                        // ...
+                    }
+                });
     }
 
     @Override
@@ -172,9 +176,9 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     public void updateUI(FirebaseUser currentUser) {
-        Intent profileIntent = new Intent(this, ProfileActivity.class);
-        profileIntent.putExtra("email", currentUser.getEmail());
-        startActivity(profileIntent);
+//        Intent profileIntent = new Intent(this, ProfileActivity.class);
+//        profileIntent.putExtra("email", currentUser.getEmail());
+//        startActivity(profileIntent);
     }
 
     private void updateUiWithUser(LoggedInUserView model) {
