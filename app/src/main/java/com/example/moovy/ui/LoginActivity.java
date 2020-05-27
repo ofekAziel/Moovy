@@ -1,8 +1,7 @@
-package com.example.moovy.ui.login;
+package com.example.moovy.ui;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Patterns;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -13,6 +12,7 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.moovy.R;
+import com.example.moovy.services.ValidationService;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
@@ -23,8 +23,10 @@ public class LoginActivity extends AppCompatActivity {
     private EditText username, password;
     private Button loginButton, signUpButton;
     private FirebaseAuth firebaseAuth;
+    private ValidationService validationService = new ValidationService();
 
     @Override
+
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
@@ -32,7 +34,7 @@ public class LoginActivity extends AppCompatActivity {
         username = findViewById(R.id.username);
         password = findViewById(R.id.password);
         loginButton = findViewById(R.id.login);
-        signUpButton = findViewById(R.id.signUp);
+        signUpButton = findViewById(R.id.register);
         loginButtonClickListener();
         signUpButtonClickListener();
     }
@@ -44,34 +46,17 @@ public class LoginActivity extends AppCompatActivity {
                 String usernameText = username.getText().toString();
                 String passwordText = password.getText().toString();
 
-                if (!isUserNameValid(usernameText)) {
+                if (!validationService.isUserNameValid(usernameText)) {
                     username.setError("Not valid username");
                     username.requestFocus();
-                }
-                else if (!isPasswordValid(passwordText)) {
+                } else if (!validationService.isPasswordValid(passwordText)) {
                     password.setError("Not valid password");
                     password.requestFocus();
-                }
-                else {
+                } else {
                     loginFirebase(usernameText, passwordText);
                 }
             }
         });
-    }
-
-    private boolean isUserNameValid(String username) {
-        if (username == null) {
-            return false;
-        }
-        if (username.contains("@")) {
-            return Patterns.EMAIL_ADDRESS.matcher(username).matches();
-        } else {
-            return !username.trim().isEmpty();
-        }
-    }
-
-    private boolean isPasswordValid(String password) {
-        return password != null && password.trim().length() > 5;
     }
 
     private void loginFirebase(String usernameText, String passwordText) {
@@ -80,9 +65,8 @@ public class LoginActivity extends AppCompatActivity {
             public void onComplete(@NonNull Task<AuthResult> task) {
                 if (!task.isSuccessful()) {
                     Toast.makeText(LoginActivity.this, "Cannot login", Toast.LENGTH_SHORT).show();
-                }
-                else {
-                   // success
+                } else {
+                    // success
                 }
             }
         });
@@ -92,7 +76,8 @@ public class LoginActivity extends AppCompatActivity {
         signUpButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent i = new Intent();
+                Intent signUpIntent = new Intent(LoginActivity.this, SignUpActivity.class);
+                LoginActivity.this.startActivity(signUpIntent);
             }
         });
     }
