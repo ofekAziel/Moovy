@@ -11,6 +11,6 @@
     <string name="login">login</string>
     <string name="do_not_have_a_user">don\'t have a user?</string>
     <string name="signUp">signUp</string>
-    <string name="title_activity_sign_up">Sign in</string>
+    <string name="title_activity_sign_up">Sign up</string>
     <string name="login_failed">"Login failed"</string>
 </resources>
