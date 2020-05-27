@@ -144,21 +144,25 @@ public class LoginActivity extends AppCompatActivity {
         });
     }
 
-    private void firebaseAuthWithGoogle(String email, String password) {
+    private void firebaseAuthWithGoogle(final String email, String password) {
         mAuth.signInWithEmailAndPassword(email, password)
                 .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         if (task.isSuccessful()) {
                             // Sign in success, update UI with the signed-in user's information
-                            System.out.println("succes");
                             FirebaseUser user = mAuth.getCurrentUser();
                             updateUI(user);
+                            Toast.makeText(getApplicationContext(), "Welcome, " + email,
+                                    Toast.LENGTH_LONG).show();
                         } else {
                             // If sign in fails, display a message to the user.
-//                            Log.w(TAG, "signInWithCredential:failure", task.getException());
-//                            Snackbar.make(mBinding.mainLayout, "Authentication Failed.", Snackbar.LENGTH_SHORT).show();
+                            //Log.w(TAG, "signInWithCredential:failure", task.getException());
+                            //Snackbar.make(mBinding.mainLayout, "Authentication Failed.", Snackbar.LENGTH_SHORT).show();
                             updateUI(null);
+                            Toast.makeText(getApplicationContext(), "Wrong email or password",
+                                    Toast.LENGTH_LONG).show();
+                            //showLoginFailed(null);
                         }
 
                         // ...
