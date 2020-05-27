@@ -8,5 +8,9 @@
     <string name="welcome">"Welcome !"</string>
     <string name="invalid_username">Not a valid username</string>
     <string name="invalid_password">Password must be >5 characters</string>
+    <string name="login">login</string>
+    <string name="do_not_have_a_user">don\'t have a user?</string>
+    <string name="title_activity_sign_up">Sign up</string>
     <string name="login_failed">"Login failed"</string>
+    <string name="signUp">signUp</string>
 </resources>
