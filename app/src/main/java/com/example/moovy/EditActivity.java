@@ -86,6 +86,7 @@ public class EditActivity extends AppCompatActivity {
 
                                 int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
                                 String picturePath = cursor.getString(columnIndex);
+                                // TODO: error when picking gallery image in next line, probably permission issues
                                 imageView.setImageBitmap(BitmapFactory.decodeFile(picturePath));
                                 /*File imgFile = new File(picturePath);
                                 if(imgFile.exists()) {
