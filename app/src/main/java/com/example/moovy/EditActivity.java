@@ -3,10 +3,15 @@ package com.example.moovy;
     import androidx.annotation.NonNull;
     import androidx.appcompat.app.AlertDialog;
     import androidx.appcompat.app.AppCompatActivity;
+    import androidx.core.app.ActivityCompat;
+    import androidx.core.content.ContextCompat;
 
+    import android.Manifest;
+    import android.app.Activity;
     import android.content.Context;
     import android.content.DialogInterface;
     import android.content.Intent;
+    import android.content.pm.PackageManager;
     import android.database.Cursor;
     import android.graphics.Bitmap;
     import android.graphics.BitmapFactory;
@@ -28,6 +33,8 @@ package com.example.moovy;
     import com.google.firebase.database.FirebaseDatabase;
     import com.google.firebase.firestore.DocumentReference;
     import com.google.firebase.firestore.FirebaseFirestore;
+    import com.google.firebase.storage.FirebaseStorage;
+    import com.google.firebase.storage.StorageReference;
 
     import java.io.Console;
     import java.io.DataInput;
@@ -42,13 +49,16 @@ public class EditActivity extends AppCompatActivity {
     private EditText nameInput, genreInput, directorInput, starringInput, summaryInput;
     private Button updateButton, deleteButton;
     private Movie movie;
+
     final FirebaseFirestore db = FirebaseFirestore.getInstance();
+    private StorageReference mStorageRef;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         initFields();
+        mStorageRef = FirebaseStorage.getInstance().getReference();
 
         imageView.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -65,6 +75,15 @@ public class EditActivity extends AppCompatActivity {
             }
         });
 
+    }
+
+    // add image to firebase
+    private void addImageToDb() {
+        /*Uri file = Uri.fromFile(new File(imageView.getTransitionName()));
+
+        Uri imgUri=Uri.parse("android.resource://my.package.name/"+R.drawable.image);
+        imageView.setImageURI(null);
+        imageView.setImageURI(imgUri);*/
     }
 
     // adds the movie to firebase
@@ -93,6 +112,8 @@ public class EditActivity extends AppCompatActivity {
             });
     }
 
+
+    // sets movie properties from input fields
     private void setMovie() {
         movie.setName(nameInput.getText().toString().trim());
         movie.setGenre(genreInput.getText().toString().trim());
@@ -119,6 +140,10 @@ public class EditActivity extends AppCompatActivity {
         movie = new Movie();
     }
 
+    private Context getContext() {
+        return this;
+    }
+
     // opens a menu for photo selection
     private void selectImage(Context context) {
         final CharSequence[] options = { "Take Photo", "Choose from Gallery","Cancel" };
@@ -136,6 +161,21 @@ public class EditActivity extends AppCompatActivity {
                     startActivityForResult(takePicture, 0);
 
                 } else if (options[item].equals("Choose from Gallery")) {
+                    if (ContextCompat.checkSelfPermission(getContext(), Manifest.permission.WRITE_EXTERNAL_STORAGE)!= PackageManager.PERMISSION_GRANTED) {
+                        // Permission is not granted
+                        if (ActivityCompat.shouldShowRequestPermissionRationale((Activity) getContext(),
+                                Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+                            // Show an explanation to the user *asynchronously* -- don't block
+                            // this thread waiting for the user's response! After the user
+                            // sees the explanation, try again to request the permission.
+                        } else {
+                            // No explanation needed; request the permission
+                            ActivityCompat.requestPermissions((Activity) getContext(),
+                                    new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                                    1660);
+                        }
+                    }
+
                     Intent pickPhoto = new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
                     startActivityForResult(pickPhoto , 1);
 
@@ -172,11 +212,11 @@ public class EditActivity extends AppCompatActivity {
                                 String picturePath = cursor.getString(columnIndex);
                                 // TODO: error when picking gallery image in next line, probably permission issues
                                 imageView.setImageBitmap(BitmapFactory.decodeFile(picturePath));
-                                /*File imgFile = new File(picturePath);
+                                File imgFile = new File(picturePath);
                                 if(imgFile.exists()) {
                                     Bitmap myBitmap = BitmapFactory.decodeFile(imgFile.getAbsolutePath());
                                     imageView.setImageBitmap(myBitmap);
-                                }*/
+                                }
                                 cursor.close();
                             }
                         }
