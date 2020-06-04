@@ -15,6 +15,7 @@ package com.example.moovy;
     import android.database.Cursor;
     import android.graphics.Bitmap;
     import android.graphics.BitmapFactory;
+    import android.graphics.drawable.BitmapDrawable;
     import android.net.Uri;
     import android.os.Bundle;
     import android.provider.MediaStore;
@@ -35,7 +36,9 @@ package com.example.moovy;
     import com.google.firebase.firestore.FirebaseFirestore;
     import com.google.firebase.storage.FirebaseStorage;
     import com.google.firebase.storage.StorageReference;
+    import com.google.firebase.storage.UploadTask;
 
+    import java.io.ByteArrayOutputStream;
     import java.io.Console;
     import java.io.DataInput;
     import java.io.File;
@@ -49,6 +52,7 @@ public class EditActivity extends AppCompatActivity {
     private EditText nameInput, genreInput, directorInput, starringInput, summaryInput;
     private Button updateButton, deleteButton;
     private Movie movie;
+    private String movieId;
 
     final FirebaseFirestore db = FirebaseFirestore.getInstance();
     private StorageReference mStorageRef;
@@ -72,6 +76,7 @@ public class EditActivity extends AppCompatActivity {
             public void onClick(View view) {
                 setMovie();
                 addMovieToDb();
+                //addImageToDb();
             }
         });
 
@@ -79,15 +84,35 @@ public class EditActivity extends AppCompatActivity {
 
     // add image to firebase
     private void addImageToDb() {
-        /*Uri file = Uri.fromFile(new File(imageView.getTransitionName()));
+        Bitmap bitmap = ((BitmapDrawable) imageView.getDrawable()).getBitmap();
 
-        Uri imgUri=Uri.parse("android.resource://my.package.name/"+R.drawable.image);
-        imageView.setImageURI(null);
-        imageView.setImageURI(imgUri);*/
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
+        byte[] data = baos.toByteArray();
+
+        FirebaseStorage storage = FirebaseStorage.getInstance();
+        StorageReference storageRef = storage.getReference();
+        StorageReference imagesRef = storageRef.child("moviePhotos/" + movieId);
+
+        UploadTask uploadTask = imagesRef.putBytes(data);
+        uploadTask.addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception exception) {
+                // Handle unsuccessful uploads
+            }
+        }).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+            @Override
+            public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                // taskSnapshot.getMetadata() contains file metadata such as size, content-type, and download URL.
+                //Uri downloadUrl = taskSnapshot.getDownloadUrl();
+                // Do what you want
+            }
+        });
     }
 
     // adds the movie to firebase
     private void addMovieToDb() {
+        // movieId =
         db.collection("movies").add(movie)
             .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
                 @Override
@@ -109,9 +134,8 @@ public class EditActivity extends AppCompatActivity {
                     toast.setGravity(Gravity.TOP, 0, 0);
                     toast.show();
                 }
-            });
+            });//.getResult().getId();
     }
-
 
     // sets movie properties from input fields
     private void setMovie() {
@@ -172,7 +196,7 @@ public class EditActivity extends AppCompatActivity {
                             // No explanation needed; request the permission
                             ActivityCompat.requestPermissions((Activity) getContext(),
                                     new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
-                                    1660);
+                                    1660); // I hope this is the right code
                         }
                     }
 
@@ -210,7 +234,7 @@ public class EditActivity extends AppCompatActivity {
 
                                 int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
                                 String picturePath = cursor.getString(columnIndex);
-                                // TODO: error when picking gallery image in next line, probably permission issues
+                                // error when picking gallery image in next line, probably permission issues
                                 imageView.setImageBitmap(BitmapFactory.decodeFile(picturePath));
                                 File imgFile = new File(picturePath);
                                 if(imgFile.exists()) {
