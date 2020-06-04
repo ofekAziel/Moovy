@@ -1,5 +1,6 @@
 package com.example.moovy;
 
+    import androidx.annotation.NonNull;
     import androidx.appcompat.app.AlertDialog;
     import androidx.appcompat.app.AppCompatActivity;
 
@@ -12,6 +13,7 @@ package com.example.moovy;
     import android.net.Uri;
     import android.os.Bundle;
     import android.provider.MediaStore;
+    import android.view.Gravity;
     import android.view.Menu;
     import android.view.MenuItem;
     import android.view.View;
@@ -20,6 +22,7 @@ package com.example.moovy;
     import android.widget.ImageView;
     import android.widget.Toast;
 
+    import com.google.android.gms.tasks.OnFailureListener;
     import com.google.android.gms.tasks.OnSuccessListener;
     import com.google.firebase.database.DatabaseReference;
     import com.google.firebase.database.FirebaseDatabase;
@@ -39,30 +42,13 @@ public class EditActivity extends AppCompatActivity {
     private EditText nameInput, genreInput, directorInput, starringInput, summaryInput;
     private Button updateButton, deleteButton;
     private Movie movie;
-    //private DatabaseReference reff;
+    final FirebaseFirestore db = FirebaseFirestore.getInstance();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        setContentView(R.layout.activity_edit);
-        imageView = (ImageView) findViewById(R.id.imageView2);
-        nameInput = (EditText) findViewById(R.id.nameInput);
-        genreInput = (EditText) findViewById(R.id.genreInput);
-        directorInput = (EditText) findViewById(R.id.directorInput);
-        starringInput = (EditText) findViewById(R.id.starringInput);
-        summaryInput = (EditText) findViewById(R.id.summaryInput);
-        updateButton = (Button) findViewById(R.id.updateButton);
-        deleteButton = (Button) findViewById(R.id.deleteButton);
-        movie = new Movie(
-                nameInput.getText().toString().trim(),
-                genreInput.getText().toString().trim(),
-                directorInput.getText().toString().trim(),
-                starringInput.getText().toString().trim(),
-                summaryInput.getText().toString());
-        movie = new Movie();
-        //reff = FirebaseDatabase.getInstance().getReference();
-        final FirebaseFirestore db = FirebaseFirestore.getInstance();
+        initFields();
 
         imageView.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -74,29 +60,66 @@ public class EditActivity extends AppCompatActivity {
         updateButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                movie.setName(nameInput.getText().toString().trim());
-                movie.setGenre(genreInput.getText().toString().trim());
-                movie.setDirector(directorInput.getText().toString().trim());
-                movie.setStarring(starringInput.getText().toString().trim());
-                movie.setSummary(summaryInput.getText().toString());
-
-                db.collection("movies").add(movie)
-                        .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
-                            @Override
-                            public void onSuccess(DocumentReference documentReference) {
-                                Toast.makeText(
-                                        EditActivity.this,
-                                        "Movie added",
-                                        Toast.LENGTH_SHORT)
-                                        .show();
-                            }
-                        });
-
+                setMovie();
+                addMovieToDb();
             }
         });
 
     }
 
+    // adds the movie to firebase
+    private void addMovieToDb() {
+        db.collection("movies").add(movie)
+            .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
+                @Override
+                public void onSuccess(DocumentReference documentReference) {
+                    Toast toast = Toast.makeText(
+                            EditActivity.this,
+                            "Movie added",
+                            Toast.LENGTH_SHORT);
+                    toast.setGravity(Gravity.TOP, 0, 0);
+                    toast.show();
+                }
+            })
+            .addOnFailureListener(new OnFailureListener() {
+                @Override
+                public void onFailure(@NonNull Exception e) {Toast toast = Toast.makeText(
+                        EditActivity.this,
+                        "Failed to add movie",
+                        Toast.LENGTH_SHORT);
+                    toast.setGravity(Gravity.TOP, 0, 0);
+                    toast.show();
+                }
+            });
+    }
+
+    private void setMovie() {
+        movie.setName(nameInput.getText().toString().trim());
+        movie.setGenre(genreInput.getText().toString().trim());
+        movie.setDirector(directorInput.getText().toString().trim());
+        movie.setStarring(starringInput.getText().toString().trim());
+        movie.setSummary(summaryInput.getText().toString());
+    }
+
+    // initialize class properties with the ui fields
+    private void initFields() {
+        setContentView(R.layout.activity_edit);
+
+        imageView = (ImageView) findViewById(R.id.imageView2);
+
+        nameInput = (EditText) findViewById(R.id.nameInput);
+        genreInput = (EditText) findViewById(R.id.genreInput);
+        directorInput = (EditText) findViewById(R.id.directorInput);
+        starringInput = (EditText) findViewById(R.id.starringInput);
+        summaryInput = (EditText) findViewById(R.id.summaryInput);
+
+        updateButton = (Button) findViewById(R.id.updateButton);
+        deleteButton = (Button) findViewById(R.id.deleteButton);
+
+        movie = new Movie();
+    }
+
+    // opens a menu for photo selection
     private void selectImage(Context context) {
         final CharSequence[] options = { "Take Photo", "Choose from Gallery","Cancel" };
 
