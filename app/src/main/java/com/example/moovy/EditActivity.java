@@ -76,7 +76,7 @@ public class EditActivity extends AppCompatActivity {
             public void onClick(View view) {
                 setMovie();
                 addMovieToDb();
-                //addImageToDb();
+                addImageToDb();
             }
         });
 
@@ -92,7 +92,7 @@ public class EditActivity extends AppCompatActivity {
 
         FirebaseStorage storage = FirebaseStorage.getInstance();
         StorageReference storageRef = storage.getReference();
-        StorageReference imagesRef = storageRef.child("moviePhotos/" + movieId);
+        StorageReference imagesRef = storageRef.child("moviePhotos/poster" + movieId);
 
         UploadTask uploadTask = imagesRef.putBytes(data);
         uploadTask.addOnFailureListener(new OnFailureListener() {
@@ -112,11 +112,13 @@ public class EditActivity extends AppCompatActivity {
 
     // adds the movie to firebase
     private void addMovieToDb() {
-        // movieId =
+        //movieId =
         db.collection("movies").add(movie)
             .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
                 @Override
                 public void onSuccess(DocumentReference documentReference) {
+                    //addImageToDb();
+
                     Toast toast = Toast.makeText(
                             EditActivity.this,
                             "Movie added",
@@ -144,6 +146,14 @@ public class EditActivity extends AppCompatActivity {
         movie.setDirector(directorInput.getText().toString().trim());
         movie.setStarring(starringInput.getText().toString().trim());
         movie.setSummary(summaryInput.getText().toString());
+
+        /*Bitmap bitmap = ((BitmapDrawable) imageView.getDrawable()).getBitmap();
+
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
+        byte[] data = baos.toByteArray();
+
+        movie.setPhoto(data);*/
     }
 
     // initialize class properties with the ui fields

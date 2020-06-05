@@ -2,6 +2,7 @@ package models;
 
 public class Movie {
     private String name, genre, director, starring, summary;
+    //private byte[] photo;
 
     public Movie(String name, String genre, String director, String starring, String summary) {
         this.name = name;
@@ -13,6 +14,15 @@ public class Movie {
 
     public Movie() {
     }
+
+    /*
+    public byte[] getPhoto() {
+        return this.photo;
+    }
+
+    public void setPhoto(byte[] photo) {
+        this.photo = photo;
+    }*/
 
     public String getName() {
         return name;
