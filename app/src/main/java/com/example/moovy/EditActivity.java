@@ -42,6 +42,7 @@ package com.example.moovy;
     import java.io.Console;
     import java.io.DataInput;
     import java.io.File;
+    import java.util.Arrays;
     import java.util.Date;
 
     import models.Movie;
@@ -52,7 +53,6 @@ public class EditActivity extends AppCompatActivity {
     private EditText nameInput, genreInput, directorInput, starringInput, summaryInput;
     private Button updateButton, deleteButton;
     private Movie movie;
-    private String movieId;
 
     final FirebaseFirestore db = FirebaseFirestore.getInstance();
     private StorageReference mStorageRef;
@@ -92,7 +92,7 @@ public class EditActivity extends AppCompatActivity {
 
         FirebaseStorage storage = FirebaseStorage.getInstance();
         StorageReference storageRef = storage.getReference();
-        StorageReference imagesRef = storageRef.child("moviePhotos/poster" + movieId);
+        StorageReference imagesRef = storageRef.child("moviePhotos/" + movie.getPhotoHash());
 
         UploadTask uploadTask = imagesRef.putBytes(data);
         uploadTask.addOnFailureListener(new OnFailureListener() {
@@ -112,7 +112,6 @@ public class EditActivity extends AppCompatActivity {
 
     // adds the movie to firebase
     private void addMovieToDb() {
-        //movieId =
         db.collection("movies").add(movie)
             .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
                 @Override
@@ -136,7 +135,7 @@ public class EditActivity extends AppCompatActivity {
                     toast.setGravity(Gravity.TOP, 0, 0);
                     toast.show();
                 }
-            });//.getResult().getId();
+            });
     }
 
     // sets movie properties from input fields
@@ -147,13 +146,13 @@ public class EditActivity extends AppCompatActivity {
         movie.setStarring(starringInput.getText().toString().trim());
         movie.setSummary(summaryInput.getText().toString());
 
-        /*Bitmap bitmap = ((BitmapDrawable) imageView.getDrawable()).getBitmap();
+        Bitmap bitmap = ((BitmapDrawable) imageView.getDrawable()).getBitmap();
 
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
         byte[] data = baos.toByteArray();
 
-        movie.setPhoto(data);*/
+        movie.setPhotoHash(Arrays.hashCode(data) + movie.hashCode());
     }
 
     // initialize class properties with the ui fields

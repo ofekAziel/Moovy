@@ -2,27 +2,27 @@ package models;
 
 public class Movie {
     private String name, genre, director, starring, summary;
-    //private byte[] photo;
+    private int photoHash; // this code is generated from the photos byte array
 
-    public Movie(String name, String genre, String director, String starring, String summary) {
+    public Movie(String name, String genre, String director, String starring, String summary, int photoHash) {
         this.name = name;
         this.genre = genre;
         this.director = director;
         this.starring = starring;
         this.summary = summary;
+        this.photoHash = photoHash;
     }
 
     public Movie() {
     }
 
-    /*
-    public byte[] getPhoto() {
-        return this.photo;
+    public int getPhotoHash() {
+        return this.photoHash;
     }
 
-    public void setPhoto(byte[] photo) {
-        this.photo = photo;
-    }*/
+    public void setPhotoHash(int photoHash) {
+        this.photoHash = photoHash;
+    }
 
     public String getName() {
         return name;
