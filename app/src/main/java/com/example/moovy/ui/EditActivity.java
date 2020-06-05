@@ -1,4 +1,4 @@
-package com.example.moovy;
+package com.example.moovy.ui;
 
     import androidx.annotation.NonNull;
     import androidx.appcompat.app.AlertDialog;
@@ -20,18 +20,15 @@ package com.example.moovy;
     import android.os.Bundle;
     import android.provider.MediaStore;
     import android.view.Gravity;
-    import android.view.Menu;
-    import android.view.MenuItem;
     import android.view.View;
     import android.widget.Button;
     import android.widget.EditText;
     import android.widget.ImageView;
     import android.widget.Toast;
 
+    import com.example.moovy.R;
     import com.google.android.gms.tasks.OnFailureListener;
     import com.google.android.gms.tasks.OnSuccessListener;
-    import com.google.firebase.database.DatabaseReference;
-    import com.google.firebase.database.FirebaseDatabase;
     import com.google.firebase.firestore.DocumentReference;
     import com.google.firebase.firestore.FirebaseFirestore;
     import com.google.firebase.storage.FirebaseStorage;
@@ -39,11 +36,8 @@ package com.example.moovy;
     import com.google.firebase.storage.UploadTask;
 
     import java.io.ByteArrayOutputStream;
-    import java.io.Console;
-    import java.io.DataInput;
     import java.io.File;
     import java.util.Arrays;
-    import java.util.Date;
 
     import models.Movie;
 
@@ -116,8 +110,6 @@ public class EditActivity extends AppCompatActivity {
             .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
                 @Override
                 public void onSuccess(DocumentReference documentReference) {
-                    //addImageToDb();
-
                     Toast toast = Toast.makeText(
                             EditActivity.this,
                             "Movie added",
@@ -140,6 +132,8 @@ public class EditActivity extends AppCompatActivity {
 
     // sets movie properties from input fields
     private void setMovie() {
+        movie = new Movie();
+
         movie.setName(nameInput.getText().toString().trim());
         movie.setGenre(genreInput.getText().toString().trim());
         movie.setDirector(directorInput.getText().toString().trim());
@@ -170,7 +164,6 @@ public class EditActivity extends AppCompatActivity {
         updateButton = (Button) findViewById(R.id.updateButton);
         deleteButton = (Button) findViewById(R.id.deleteButton);
 
-        movie = new Movie();
     }
 
     private Context getContext() {
