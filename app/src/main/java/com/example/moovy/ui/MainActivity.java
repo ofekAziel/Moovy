@@ -1,10 +1,12 @@
 package com.example.moovy.ui;
 
+import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
+import android.widget.Button;
 import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -12,6 +14,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.constraintlayout.widget.ConstraintLayout;
 
 import com.example.moovy.R;
 import com.example.moovy.models.Movie;
@@ -29,6 +32,8 @@ public class MainActivity extends AppCompatActivity {
 
     FirebaseFirestore db;
     GridView movieGrid;
+    Button addMovieButton;
+    ConstraintLayout movieCard;
     List<Movie> movies = new ArrayList<>();
 
     @Override
@@ -37,7 +42,19 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         db = FirebaseFirestore.getInstance();
         movieGrid = findViewById(R.id.movieGrid);
+        addMovieButton = findViewById(R.id.addMovieButton);
         selectAllMovies();
+        addMovieButtonClickListener();
+    }
+
+    private void addMovieButtonClickListener() {
+        addMovieButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent mainIntent = new Intent(MainActivity.this, EditActivity.class);
+                MainActivity.this.startActivity(mainIntent);
+            }
+        });
     }
 
     private void selectAllMovies() {
@@ -77,6 +94,8 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public View getView(int position, View convertView, ViewGroup parent) {
             View view = getLayoutInflater().inflate(R.layout.movie_layout, null);
+            ConstraintLayout movieCard = view.findViewById(R.id.movieCard);
+            movieCardClickListener(movieCard);
             ImageView moviePhoto = view.findViewById(R.id.moviePhoto);
             TextView movieName = view.findViewById(R.id.movieName);
             TextView movieGenre = view.findViewById(R.id.movieGenre);
@@ -87,6 +106,15 @@ public class MainActivity extends AppCompatActivity {
             movieGenre.setText(movies.get(position).getGenre());
 //            movieRating.setText();
             return view;
+        }
+
+        private void movieCardClickListener(ConstraintLayout movieCard) {
+            movieCard.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+
+                }
+            });
         }
     }
 }
