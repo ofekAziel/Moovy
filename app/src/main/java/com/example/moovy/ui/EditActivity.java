@@ -1,70 +1,83 @@
 package com.example.moovy.ui;
 
-    import androidx.annotation.NonNull;
-    import androidx.appcompat.app.AlertDialog;
-    import androidx.appcompat.app.AppCompatActivity;
-    import androidx.core.app.ActivityCompat;
-    import androidx.core.content.ContextCompat;
+import android.Manifest;
+import android.app.Activity;
+import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.drawable.BitmapDrawable;
+import android.net.Uri;
+import android.os.Bundle;
+import android.provider.MediaStore;
+import android.view.Gravity;
+import android.view.View;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.ImageView;
+import android.widget.Toast;
 
-    import android.Manifest;
-    import android.app.Activity;
-    import android.content.Context;
-    import android.content.DialogInterface;
-    import android.content.Intent;
-    import android.content.pm.PackageManager;
-    import android.database.Cursor;
-    import android.graphics.Bitmap;
-    import android.graphics.BitmapFactory;
-    import android.graphics.drawable.BitmapDrawable;
-    import android.net.Uri;
-    import android.os.Bundle;
-    import android.provider.MediaStore;
-    import android.view.Gravity;
-    import android.view.View;
-    import android.widget.Button;
-    import android.widget.EditText;
-    import android.widget.ImageView;
-    import android.widget.Toast;
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 
-    import com.example.moovy.R;
-    import com.google.android.gms.tasks.OnFailureListener;
-    import com.google.android.gms.tasks.OnSuccessListener;
-    import com.google.firebase.firestore.DocumentReference;
-    import com.google.firebase.firestore.FirebaseFirestore;
-    import com.google.firebase.storage.FirebaseStorage;
-    import com.google.firebase.storage.StorageReference;
-    import com.google.firebase.storage.UploadTask;
+import com.example.moovy.R;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
 
-    import java.io.ByteArrayOutputStream;
-    import java.io.File;
-    import java.util.Arrays;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.util.Arrays;
 
-    import models.Movie;
+import models.Movie;
 
 public class EditActivity extends AppCompatActivity {
+
     private ImageView imageView;
-
     private EditText nameInput, genreInput, directorInput, starringInput, summaryInput;
-    private Button updateButton, deleteButton;
+    private Button updateButton, deleteButton, cancelButton;
     private Movie movie;
-
     final FirebaseFirestore db = FirebaseFirestore.getInstance();
-    private StorageReference mStorageRef;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         initFields();
-        mStorageRef = FirebaseStorage.getInstance().getReference();
+        cancelButtonClickListener();
+        imageViewClickListener();
+        updateButtonClickListener();
+    }
 
+    private void cancelButtonClickListener() {
+        cancelButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent mainIntent = new Intent(EditActivity.this, MainActivity.class);
+                EditActivity.this.startActivity(mainIntent);
+            }
+        });
+    }
+
+    private void imageViewClickListener() {
         imageView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 selectImage(EditActivity.this);
             }
         });
+    }
 
+    private void updateButtonClickListener() {
         updateButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -73,10 +86,8 @@ public class EditActivity extends AppCompatActivity {
                 addImageToDb();
             }
         });
-
     }
 
-    // add image to firebase
     private void addImageToDb() {
         Bitmap bitmap = ((BitmapDrawable) imageView.getDrawable()).getBitmap();
 
@@ -104,7 +115,6 @@ public class EditActivity extends AppCompatActivity {
         });
     }
 
-    // adds the movie to firebase
     private void addMovieToDb() {
         db.collection("movies").add(movie)
             .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
@@ -130,7 +140,6 @@ public class EditActivity extends AppCompatActivity {
             });
     }
 
-    // sets movie properties from input fields
     private void setMovie() {
         movie = new Movie();
 
@@ -149,28 +158,23 @@ public class EditActivity extends AppCompatActivity {
         movie.setPhotoHash(Arrays.hashCode(data) + movie.hashCode());
     }
 
-    // initialize class properties with the ui fields
     private void initFields() {
         setContentView(R.layout.activity_edit);
-
-        imageView = (ImageView) findViewById(R.id.imageView2);
-
-        nameInput = (EditText) findViewById(R.id.nameInput);
-        genreInput = (EditText) findViewById(R.id.genreInput);
-        directorInput = (EditText) findViewById(R.id.directorInput);
-        starringInput = (EditText) findViewById(R.id.starringInput);
-        summaryInput = (EditText) findViewById(R.id.summaryInput);
-
-        updateButton = (Button) findViewById(R.id.updateButton);
-        deleteButton = (Button) findViewById(R.id.deleteButton);
-
+        imageView = findViewById(R.id.imageView2);
+        nameInput = findViewById(R.id.nameInput);
+        genreInput = findViewById(R.id.genreInput);
+        directorInput = findViewById(R.id.directorInput);
+        starringInput = findViewById(R.id.starringInput);
+        summaryInput = findViewById(R.id.summaryInput);
+        updateButton = findViewById(R.id.updateButton);
+        deleteButton = findViewById(R.id.deleteButton);
+        cancelButton = findViewById(R.id.cancelButton);
     }
 
     private Context getContext() {
         return this;
     }
 
-    // opens a menu for photo selection
     private void selectImage(Context context) {
         final CharSequence[] options = { "Take Photo", "Choose from Gallery","Cancel" };
 
@@ -252,5 +256,4 @@ public class EditActivity extends AppCompatActivity {
             }
         }
     }
-
 }
