@@ -1,5 +1,6 @@
 package com.example.moovy.ui;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
@@ -94,6 +95,7 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public View getView(int position, View convertView, ViewGroup parent) {
             View view = getLayoutInflater().inflate(R.layout.movie_layout, null);
+            view.getContext();
             ConstraintLayout movieCard = view.findViewById(R.id.movieCard);
             movieCardClickListener(movieCard);
             ImageView moviePhoto = view.findViewById(R.id.moviePhoto);
@@ -112,7 +114,9 @@ public class MainActivity extends AppCompatActivity {
             movieCard.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-
+                    Context context = v.getContext();
+                    Intent mainIntent = new Intent(context, DetailsActivity.class);
+                    context.startActivity(mainIntent);
                 }
             });
         }
