@@ -18,15 +18,15 @@ public class DetailsActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_details);
+        //setContentView(R.layout.activity_details);
 
         editButton = (ImageButton) findViewById(R.id.editButton);
         editButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 // open edit activity with certain movie
-                Intent intent = new Intent(DetailsActivity.this, EditActivity.class);
-                startActivity(intent);
+                //Intent intent = new Intent(DetailsActivity.this, EditActivity.class);
+                //startActivity(intent);
             }
         });
     }
