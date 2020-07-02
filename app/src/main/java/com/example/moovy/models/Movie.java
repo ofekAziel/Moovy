@@ -3,16 +3,26 @@ package com.example.moovy.models;
 public class Movie {
 
     private String name, genre, director, starring, summary;
+    private int photoHash;
 
-    public Movie(String name, String genre, String director, String starring, String summary) {
+    public Movie(String name, String genre, String director, String starring, String summary, int photoHash) {
         this.name = name;
         this.genre = genre;
         this.director = director;
         this.starring = starring;
         this.summary = summary;
+        this.photoHash = photoHash;
     }
 
     public Movie() {
+    }
+
+    public int getPhotoHash() {
+        return this.photoHash;
+    }
+
+    public void setPhotoHash(int photoHash) {
+        this.photoHash = photoHash;
     }
 
     public String getName() {
