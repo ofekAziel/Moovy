@@ -61,8 +61,7 @@ public class EditActivity extends AppCompatActivity {
         cancelButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent mainIntent = new Intent(EditActivity.this, MainActivity.class);
-                EditActivity.this.startActivity(mainIntent);
+                finish();
             }
         });
     }
