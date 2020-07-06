@@ -1,6 +1,9 @@
 package models;
 
-public class Movie {
+
+import java.io.Serializable;
+
+public class Movie implements Serializable {
     private String name, genre, director, starring, summary;
     private int photoHash; // this code is generated from the photos byte array
 
@@ -14,7 +17,14 @@ public class Movie {
     }
 
     public Movie() {
+        /*this.name = "";
+        this.genre = "";
+        this.director = "";
+        this.starring = "";
+        this.summary = "";
+        this.photoHash = 0;*/
     }
+
 
     public int getPhotoHash() {
         return this.photoHash;
@@ -63,4 +73,6 @@ public class Movie {
     public void setSummary(String summary) {
         this.summary = summary;
     }
+
+
 }

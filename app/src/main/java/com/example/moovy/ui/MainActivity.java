@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
@@ -24,7 +25,9 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.google.gson.Gson;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -76,6 +79,11 @@ public class MainActivity extends AppCompatActivity {
     }
 
     class CustomAdapter extends BaseAdapter {
+        Movie movie;
+
+        public Movie getMovie() {
+            return this.movie;
+        }
 
         @Override
         public int getCount() {
@@ -104,18 +112,21 @@ public class MainActivity extends AppCompatActivity {
             TextView movieRating = view.findViewById(R.id.movieRating);
 
 //            moviePhoto.setImageResource("");
-            movieName.setText(movies.get(position).getName());
-            movieGenre.setText(movies.get(position).getGenre());
+            this.movie = movies.get(position);
+            movieName.setText(this.movie.getName());
+            movieGenre.setText(this.movie.getGenre());
 //            movieRating.setText();
             return view;
         }
 
         private void movieCardClickListener(ConstraintLayout movieCard) {
+            final Movie selectedMovie = this.getMovie();
             movieCard.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     Context context = v.getContext();
                     Intent mainIntent = new Intent(context, DetailsActivity.class);
+                    mainIntent.putExtra("selectedMovie", new Gson().toJson(CustomAdapter.this.getMovie()));
                     context.startActivity(mainIntent);
                 }
             });
