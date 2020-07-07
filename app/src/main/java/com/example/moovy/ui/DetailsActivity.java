@@ -18,11 +18,7 @@ import models.Movie;
 public class DetailsActivity extends AppCompatActivity {
     private ImageButton editButton;
     Movie selectedMovie;
-    TextView titleTextView;
-    TextView genreTextView;
-    TextView actorsTextView;
-    TextView directorTextView;
-    TextView summaryTextView;
+    TextView titleTextView, genreTextView, actorsTextView, directorTextView, summaryTextView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,6 +39,7 @@ public class DetailsActivity extends AppCompatActivity {
             public void onClick(View view) {
                 // open edit activity with certain movie
                 Intent intent = new Intent(DetailsActivity.this, EditActivity.class);
+                intent.putExtra("selectedMovie", new Gson().toJson(DetailsActivity.this.selectedMovie));
                 startActivity(intent);
             }
         });
