@@ -27,6 +27,7 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
 import com.example.moovy.R;
+import com.example.moovy.models.Movie;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.firestore.DocumentReference;
@@ -39,8 +40,6 @@ import com.google.gson.Gson;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.util.Arrays;
-
-import models.Movie;
 
 public class EditActivity extends AppCompatActivity {
 
@@ -65,8 +64,7 @@ public class EditActivity extends AppCompatActivity {
         cancelButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent mainIntent = new Intent(EditActivity.this, MainActivity.class);
-                EditActivity.this.startActivity(mainIntent);
+                finish();
             }
         });
     }
