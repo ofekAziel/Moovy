@@ -9,11 +9,8 @@ import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.moovy.R;
+import com.example.moovy.models.Movie;
 import com.google.gson.Gson;
-
-import org.w3c.dom.Text;
-
-import models.Movie;
 
 public class DetailsActivity extends AppCompatActivity {
     private ImageButton editButton;
@@ -49,6 +46,5 @@ public class DetailsActivity extends AppCompatActivity {
         actorsTextView.setText(selectedMovie.getStarring());
         directorTextView.setText(selectedMovie.getDirector());
         summaryTextView.setText(selectedMovie.getSummary());
-
     }
 }
