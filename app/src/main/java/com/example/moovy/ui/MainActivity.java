@@ -25,6 +25,8 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 import com.google.gson.Gson;
 
 import java.io.Serializable;
@@ -79,6 +81,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     class CustomAdapter extends BaseAdapter {
+
         Movie movie;
 
         public Movie getMovie() {
@@ -103,24 +106,30 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public View getView(int position, View convertView, ViewGroup parent) {
             View view = getLayoutInflater().inflate(R.layout.movie_layout, null);
-            view.getContext();
-            ConstraintLayout movieCard = view.findViewById(R.id.movieCard);
-            movieCardClickListener(movieCard);
-            ImageView moviePhoto = view.findViewById(R.id.moviePhoto);
+            movieCardClickListener(view);
+            downloadMoviePhoto(view, movies.get(position).getPhotoHash());
+            setMovieCardFields(position, view);
+            return view;
+        }
+
+        private void setMovieCardFields(int position, View view) {
             TextView movieName = view.findViewById(R.id.movieName);
             TextView movieGenre = view.findViewById(R.id.movieGenre);
             TextView movieRating = view.findViewById(R.id.movieRating);
 
-//            moviePhoto.setImageResource("");
-            this.movie = movies.get(position);
-            movieName.setText(this.movie.getName());
-            movieGenre.setText(this.movie.getGenre());
-//            movieRating.setText();
-            return view;
+            movieName.setText(movies.get(position).getName());
+            movieGenre.setText(movies.get(position).getGenre());
+            movieRating.setText("4/5");
         }
 
-        private void movieCardClickListener(ConstraintLayout movieCard) {
-            final Movie selectedMovie = this.getMovie();
+        private void downloadMoviePhoto(View view, int photoHash) {
+            StorageReference imageReference = FirebaseStorage.getInstance().getReference().child("moviePhotos/" + photoHash);
+            ImageView moviePhoto = view.findViewById(R.id.moviePhoto);
+            GlideApp.with(view.getContext()).load(imageReference).into(moviePhoto);
+        }
+
+        private void movieCardClickListener(View view) {
+            ConstraintLayout movieCard = view.findViewById(R.id.movieCard);
             movieCard.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
