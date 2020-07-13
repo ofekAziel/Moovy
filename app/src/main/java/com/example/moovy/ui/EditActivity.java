@@ -35,7 +35,6 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
-import com.google.gson.Gson;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -52,8 +51,7 @@ public class EditActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Intent intent = getIntent();
-        this.movie = new Gson().fromJson(intent.getStringExtra("selectedMovie"), Movie.class);
+        movie = (Movie) getIntent().getSerializableExtra("selectedMovie");;
         initFields();
         cancelButtonClickListener();
         imageViewClickListener();
@@ -171,7 +169,7 @@ public class EditActivity extends AppCompatActivity {
         updateButton = findViewById(R.id.updateButton);
         deleteButton = findViewById(R.id.deleteButton);
         cancelButton = findViewById(R.id.cancelButton);
-        if(movie != null) {
+        if (movie != null) {
             nameInput.setText(movie.getName());
             genreInput.setText(movie.getGenre());
             directorInput.setText(movie.getDirector());
@@ -228,7 +226,7 @@ public class EditActivity extends AppCompatActivity {
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if(resultCode != RESULT_CANCELED) {
+        if (resultCode != RESULT_CANCELED) {
             switch (requestCode) {
                 case 0:
                     if (resultCode == RESULT_OK && data != null) {

@@ -26,7 +26,6 @@ import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
-import com.google.gson.Gson;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -80,12 +79,6 @@ public class MainActivity extends AppCompatActivity {
 
     class CustomAdapter extends BaseAdapter {
 
-        Movie movie;
-
-        public Movie getMovie() {
-            return this.movie;
-        }
-
         @Override
         public int getCount() {
             return movies.size();
@@ -93,18 +86,18 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         public Object getItem(int position) {
-            return null;
+            return movies.get(position);
         }
 
         @Override
         public long getItemId(int position) {
-            return 0;
+            return position;
         }
 
         @Override
         public View getView(int position, View convertView, ViewGroup parent) {
             View view = getLayoutInflater().inflate(R.layout.movie_layout, null);
-            movieCardClickListener(view);
+            movieCardClickListener(view, position);
             downloadMoviePhoto(view, movies.get(position).getPhotoHash());
             setMovieCardFields(position, view);
             return view;
@@ -126,14 +119,15 @@ public class MainActivity extends AppCompatActivity {
             GlideApp.with(view.getContext()).load(imageReference).into(moviePhoto);
         }
 
-        private void movieCardClickListener(View view) {
+        private void movieCardClickListener(View view, int position) {
+            final Movie selectedMovie = (Movie) this.getItem(position);
             ConstraintLayout movieCard = view.findViewById(R.id.movieCard);
             movieCard.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     Context context = v.getContext();
                     Intent mainIntent = new Intent(context, DetailsActivity.class);
-                    mainIntent.putExtra("selectedMovie", new Gson().toJson(CustomAdapter.this.getMovie()));
+                    mainIntent.putExtra("selectedMovie", selectedMovie);
                     context.startActivity(mainIntent);
                 }
             });

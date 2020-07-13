@@ -1,6 +1,8 @@
 package com.example.moovy.models;
 
-public class Movie {
+import java.io.Serializable;
+
+public class Movie implements Serializable {
 
     private String name, genre, director, starring, summary;
     private int photoHash;
