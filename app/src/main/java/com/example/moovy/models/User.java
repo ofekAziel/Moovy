@@ -1,6 +1,8 @@
 package com.example.moovy.models;
 
-public class User {
+import java.io.Serializable;
+
+public class User implements Serializable {
 
     private String firstName, lastName, userUid;
     private boolean isAdmin;
