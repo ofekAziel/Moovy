@@ -19,8 +19,11 @@ import androidx.constraintlayout.widget.ConstraintLayout;
 
 import com.example.moovy.R;
 import com.example.moovy.models.Movie;
+import com.example.moovy.models.User;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
@@ -33,21 +36,46 @@ import java.util.Objects;
 
 public class MainActivity extends AppCompatActivity {
 
-    FirebaseFirestore db;
+    FirebaseFirestore db = FirebaseFirestore.getInstance();
+    private FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
     GridView movieGrid;
+    TextView currentUser;
+    User user;
     Button addMovieButton;
-    ConstraintLayout movieCard;
     List<Movie> movies = new ArrayList<>();
 
+    @RequiresApi(api = Build.VERSION_CODES.KITKAT)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        db = FirebaseFirestore.getInstance();
         movieGrid = findViewById(R.id.movieGrid);
         addMovieButton = findViewById(R.id.addMovieButton);
+        currentUser = findViewById(R.id.currentUser);
+        getCurrentUser();
         selectAllMovies();
         addMovieButtonClickListener();
+    }
+
+    private void setUpScreenAdmin() {
+        String userDisplayName = "Hello " + user.getFirstName() + " " + user.getLastName();
+        currentUser.setText(userDisplayName);
+
+        if (!user.isAdmin()) {
+            addMovieButton.setVisibility(View.GONE);
+        }
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.KITKAT)
+    private void getCurrentUser() {
+        String currentUserUid = Objects.requireNonNull(firebaseAuth.getCurrentUser()).getUid();
+        db.collection("users").whereEqualTo("userUid", currentUserUid).limit(1).get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+            @Override
+            public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
+                user = queryDocumentSnapshots.getDocuments().get(0).toObject(User.class);
+                setUpScreenAdmin();
+            }
+        });
     }
 
     private void addMovieButtonClickListener() {
@@ -128,6 +156,7 @@ public class MainActivity extends AppCompatActivity {
                     Context context = v.getContext();
                     Intent mainIntent = new Intent(context, DetailsActivity.class);
                     mainIntent.putExtra("selectedMovie", selectedMovie);
+                    mainIntent.putExtra("user", user);
                     context.startActivity(mainIntent);
                 }
             });
