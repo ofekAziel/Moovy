@@ -51,7 +51,7 @@ public class EditActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        movie = (Movie) getIntent().getSerializableExtra("selectedMovie");;
+        movie = (Movie) getIntent().getSerializableExtra("selectedMovie");
         initFields();
         cancelButtonClickListener();
         imageViewClickListener();
