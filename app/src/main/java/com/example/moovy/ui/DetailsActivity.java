@@ -1,15 +1,21 @@
 package com.example.moovy.ui;
 
 import android.content.Context;
+import android.content.ContextWrapper;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.drawable.BitmapDrawable;
+import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.moovy.R;
@@ -18,8 +24,13 @@ import com.example.moovy.models.User;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
+import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
 
 public class DetailsActivity extends AppCompatActivity {
     private ImageButton editButton;
@@ -73,12 +84,29 @@ public class DetailsActivity extends AppCompatActivity {
         imageView.setImageBitmap(bitmap);
     }
 
+    public String saveImageToFile(String fileName) {
+        try {
+            Bitmap bitmap = ((BitmapDrawable)imageView.getDrawable()).getBitmap();
+            ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, bytes);
+            FileOutputStream fo = openFileOutput(fileName, Context.MODE_PRIVATE);
+            fo.write(bytes.toByteArray());
+            // remember close file output
+            fo.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+            fileName = null;
+        }
+        return fileName;
+    }
+
     private void editButtonClickListener() {
         editButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Intent intent = new Intent(DetailsActivity.this, EditActivity.class);
                 intent.putExtra("selectedMovie", movie);
+                saveImageToFile(String.valueOf(movie.getPhotoHash()));
                 startActivity(intent);
             }
         });

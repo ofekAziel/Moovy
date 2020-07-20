@@ -38,6 +38,8 @@ import com.google.firebase.storage.UploadTask;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.util.Arrays;
 
 public class EditActivity extends AppCompatActivity {
@@ -158,6 +160,16 @@ public class EditActivity extends AppCompatActivity {
         movie.setPhotoHash(Arrays.hashCode(data) + movie.hashCode());
     }
 
+    private void loadImageFromFile(String fileName)
+    {
+        try {
+            Bitmap bitmap = BitmapFactory.decodeStream(getApplicationContext().openFileInput(fileName));
+            imageView.setImageBitmap(bitmap);
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+    }
+
     private void initFields() {
         setContentView(R.layout.activity_edit);
         imageView = findViewById(R.id.imageView2);
@@ -175,6 +187,7 @@ public class EditActivity extends AppCompatActivity {
             directorInput.setText(movie.getDirector());
             starringInput.setText(movie.getStarring());
             summaryInput.setText(movie.getSummary());
+            loadImageFromFile(String.valueOf(movie.getPhotoHash()));
         }
     }
 
