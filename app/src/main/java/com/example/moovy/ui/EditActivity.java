@@ -40,6 +40,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.lang.reflect.Field;
 import java.util.Arrays;
 
 public class EditActivity extends AppCompatActivity {
@@ -58,6 +59,41 @@ public class EditActivity extends AppCompatActivity {
         cancelButtonClickListener();
         imageViewClickListener();
         updateButtonClickListener();
+        deleteButtonClickListener();
+    }
+
+    public void deletePhoto() {
+        // don't delete default photo
+        if(this.movie.getPhotoHash() == 0)
+            return;
+        FirebaseStorage.getInstance().getReference().child("moviePhotos/" + this.movie.getPhotoHash()).delete();
+    }
+
+    public void deleteMovie() {
+        deletePhoto();
+        db.collection("movies").document(this.movie.getId()).delete().addOnSuccessListener(new OnSuccessListener<Void>() {
+            @Override
+            public void onSuccess(Void aVoid) {
+                Toast toast = Toast.makeText(
+                        EditActivity.this,
+                        "Movie deleted",
+                        Toast.LENGTH_SHORT);
+                toast.setGravity(Gravity.TOP, 0, 0);
+                toast.show();
+            }
+        });
+    }
+
+    private void deleteButtonClickListener() {
+        deleteButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                deleteMovie();
+                Intent mainIntent = new Intent(EditActivity.this, MainActivity.class);
+                mainIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                EditActivity.this.startActivity(mainIntent);
+            }
+        });
     }
 
     private void cancelButtonClickListener() {
@@ -83,9 +119,15 @@ public class EditActivity extends AppCompatActivity {
         updateButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                setMovie();
-                addMovieToDb();
                 addImageToDb();
+                if(movie.isNewMovie()) {
+                    setMovie();
+                    addMovieToDb();
+                }
+                else {
+                    setMovie();
+                    updateMovieInDb();
+                }
             }
         });
     }
@@ -115,6 +157,18 @@ public class EditActivity extends AppCompatActivity {
                 // Do what you want
             }
         });
+    }
+
+    private void updateMovieInDb() {
+        db.collection("movies").document(movie.getId()).update("name", movie.getName());
+        db.collection("movies").document(movie.getId()).update("genre", movie.getGenre());
+        db.collection("movies").document(movie.getId()).update("director", movie.getDirector());
+        db.collection("movies").document(movie.getId()).update("starring", movie.getStarring());
+        db.collection("movies").document(movie.getId()).update("summary", movie.getSummary());
+        db.collection("movies").document(movie.getId()).update("photoHash", movie.getPhotoHash());
+        /*for(Field field : movie.getClass().getDeclaredFields()) {
+            db.collection("movies").document(movie.getId()).update(field.getName(), );
+        }*/
     }
 
     private void addMovieToDb() {

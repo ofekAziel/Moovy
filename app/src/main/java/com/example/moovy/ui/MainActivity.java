@@ -108,7 +108,9 @@ public class MainActivity extends AppCompatActivity {
             public void onComplete(@NonNull Task<QuerySnapshot> task) {
                 if (task.isSuccessful()) {
                     for (QueryDocumentSnapshot document : Objects.requireNonNull(task.getResult())) {
-                        movies.add(document.toObject(Movie.class));
+                        Movie movie = document.toObject(Movie.class);
+                        movie.setId(document.getId());
+                        movies.add(movie);
                     }
 
                     CustomAdapter customAdapter = new CustomAdapter();
