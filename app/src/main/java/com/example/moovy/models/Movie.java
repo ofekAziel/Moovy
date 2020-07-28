@@ -1,7 +1,10 @@
 package com.example.moovy.models;
 
-public class Movie {
+import java.io.Serializable;
 
+public class Movie implements Serializable {
+
+    private String id;
     private String name, genre, director, starring, summary;
     private int photoHash;
 
@@ -15,6 +18,25 @@ public class Movie {
     }
 
     public Movie() {
+        this.id = "";
+        this.name = "";
+        this.genre = "";
+        this.director = "";
+        this.starring = "";
+        this.summary = "";
+        this.photoHash = 0;
+    }
+
+    public boolean isNewMovie() {
+        return this.id.equals("");
+    }
+
+    public String getId() {
+        return this.id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
     }
 
     public int getPhotoHash() {

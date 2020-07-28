@@ -16,4 +16,6 @@
     <string name="movie_photo">"this is the movie photo"</string>
     <string name="movie_feed_screen_name">"MOOVY FEED"</string>
     <string name="add_movie_button">"add movie"</string>
+    <string name="first_name_text">"First Name"</string>
+    <string name="last_name_text">"Last Name"</string>
 </resources>

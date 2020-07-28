@@ -35,10 +35,12 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
-import com.google.gson.Gson;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.lang.reflect.Field;
 import java.util.Arrays;
 
 public class EditActivity extends AppCompatActivity {
@@ -52,12 +54,45 @@ public class EditActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Intent intent = getIntent();
-        this.movie = new Gson().fromJson(intent.getStringExtra("selectedMovie"), Movie.class);
+        Movie selectedMovie = (Movie) getIntent().getSerializableExtra("selectedMovie");
+        if(selectedMovie != null)
+            this.movie = selectedMovie;
+        else
+            this.movie = new Movie();
         initFields();
         cancelButtonClickListener();
         imageViewClickListener();
         updateButtonClickListener();
+        deleteButtonClickListener();
+    }
+
+    public void deletePhoto() {
+        // don't delete default photo
+        if(this.movie.getPhotoHash() == 0)
+            return;
+        FirebaseStorage.getInstance().getReference().child("moviePhotos/" + this.movie.getPhotoHash()).delete();
+    }
+
+    public void deleteMovie() {
+        deletePhoto();
+        db.collection("movies").document(this.movie.getId()).delete().addOnSuccessListener(new OnSuccessListener<Void>() {
+            @Override
+            public void onSuccess(Void aVoid) {
+                showToast("Movie deleted");
+            }
+        });
+    }
+
+    private void deleteButtonClickListener() {
+        deleteButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                deleteMovie();
+                Intent mainIntent = new Intent(EditActivity.this, MainActivity.class);
+                mainIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                EditActivity.this.startActivity(mainIntent);
+            }
+        });
     }
 
     private void cancelButtonClickListener() {
@@ -82,9 +117,18 @@ public class EditActivity extends AppCompatActivity {
         updateButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                setMovie();
-                addMovieToDb();
+                if(movie.isNewMovie()) {
+                    setMovie();
+                    addMovieToDb();
+                }
+                else {
+                    setMovie();
+                    updateMovieInDb();
+                }
                 addImageToDb();
+                Intent mainIntent = new Intent(EditActivity.this, MainActivity.class);
+                mainIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                EditActivity.this.startActivity(mainIntent);
             }
         });
     }
@@ -104,16 +148,24 @@ public class EditActivity extends AppCompatActivity {
         uploadTask.addOnFailureListener(new OnFailureListener() {
             @Override
             public void onFailure(@NonNull Exception exception) {
-                // Handle unsuccessful uploads
-            }
-        }).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
-            @Override
-            public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                // taskSnapshot.getMetadata() contains file metadata such as size, content-type, and download URL.
-                //Uri downloadUrl = taskSnapshot.getDownloadUrl();
-                // Do what you want
+                showToast("Failed to upload image");
             }
         });
+    }
+
+    private void updateMovieInDb() {
+        db.collection("movies").document(this.movie.getId()).update(
+                "name", movie.getName(),
+                "genre", movie.getGenre(),
+                "director", movie.getDirector(),
+                "starring", movie.getStarring(),
+                "photoHash", movie.getPhotoHash()).
+                addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        showToast("Movie updated");
+                    }
+                });
     }
 
     private void addMovieToDb() {
@@ -121,29 +173,18 @@ public class EditActivity extends AppCompatActivity {
             .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
                 @Override
                 public void onSuccess(DocumentReference documentReference) {
-                    Toast toast = Toast.makeText(
-                            EditActivity.this,
-                            "Movie added",
-                            Toast.LENGTH_SHORT);
-                    toast.setGravity(Gravity.TOP, 0, 0);
-                    toast.show();
+                    showToast("Movie added");
                 }
             })
             .addOnFailureListener(new OnFailureListener() {
                 @Override
-                public void onFailure(@NonNull Exception e) {Toast toast = Toast.makeText(
-                        EditActivity.this,
-                        "Failed to add movie",
-                        Toast.LENGTH_SHORT);
-                    toast.setGravity(Gravity.TOP, 0, 0);
-                    toast.show();
+                public void onFailure(@NonNull Exception e) {
+                    showToast("Failed to add movie");
                 }
             });
     }
 
     private void setMovie() {
-        movie = new Movie();
-
         movie.setName(nameInput.getText().toString().trim());
         movie.setGenre(genreInput.getText().toString().trim());
         movie.setDirector(directorInput.getText().toString().trim());
@@ -159,6 +200,16 @@ public class EditActivity extends AppCompatActivity {
         movie.setPhotoHash(Arrays.hashCode(data) + movie.hashCode());
     }
 
+    private void loadImageFromFile(String fileName)
+    {
+        try {
+            Bitmap bitmap = BitmapFactory.decodeStream(getApplicationContext().openFileInput(fileName));
+            imageView.setImageBitmap(bitmap);
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+    }
+
     private void initFields() {
         setContentView(R.layout.activity_edit);
         imageView = findViewById(R.id.imageView2);
@@ -170,12 +221,13 @@ public class EditActivity extends AppCompatActivity {
         updateButton = findViewById(R.id.updateButton);
         deleteButton = findViewById(R.id.deleteButton);
         cancelButton = findViewById(R.id.cancelButton);
-        if(movie != null) {
+        if (movie != null) {
             nameInput.setText(movie.getName());
             genreInput.setText(movie.getGenre());
             directorInput.setText(movie.getDirector());
             starringInput.setText(movie.getStarring());
             summaryInput.setText(movie.getSummary());
+            loadImageFromFile(String.valueOf(movie.getPhotoHash()));
         }
     }
 
@@ -225,9 +277,18 @@ public class EditActivity extends AppCompatActivity {
         builder.show();
     }
 
+    private void showToast(String message) {
+        Toast toast = Toast.makeText(
+                EditActivity.this,
+                message,
+                Toast.LENGTH_SHORT);
+        toast.setGravity(Gravity.TOP, 0, 0);
+        toast.show();
+    }
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if(resultCode != RESULT_CANCELED) {
+        if (resultCode != RESULT_CANCELED) {
             switch (requestCode) {
                 case 0:
                     if (resultCode == RESULT_OK && data != null) {

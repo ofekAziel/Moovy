@@ -22,7 +22,7 @@ public class LoginActivity extends AppCompatActivity {
 
     private EditText username, password;
     private Button loginButton, signUpButton;
-    private FirebaseAuth firebaseAuth;
+    private FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
     private ValidationService validationService = new ValidationService();
 
     @Override
@@ -30,7 +30,6 @@ public class LoginActivity extends AppCompatActivity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
-        firebaseAuth = FirebaseAuth.getInstance();
         username = findViewById(R.id.username);
         password = findViewById(R.id.password);
         loginButton = findViewById(R.id.login);
