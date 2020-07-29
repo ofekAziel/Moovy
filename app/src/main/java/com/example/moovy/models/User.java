@@ -16,7 +16,8 @@ public class User implements Serializable {
     }
 
     public String getFullName() {
-        return firstName + " " + lastName;
+        String fullName = firstName + " " + lastName;
+        return fullName.trim();
     }
 
     public String getFirstName() {

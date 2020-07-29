@@ -71,7 +71,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void setUpScreenAdmin() {
-        String userDisplayName = "Hello " + user.getFirstName() + " " + user.getLastName();
+        String userDisplayName = "Hello " + user.getFullName();
         currentUser.setText(userDisplayName);
 
         if (!user.isAdmin()) {

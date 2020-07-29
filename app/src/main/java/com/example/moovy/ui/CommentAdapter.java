@@ -15,6 +15,7 @@ import com.bumptech.glide.Glide;
 import com.example.moovy.R;
 import com.example.moovy.models.Comment;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 
 public class CommentAdapter extends RecyclerView.Adapter<CommentAdapter.ViewHolder>{
@@ -43,7 +44,8 @@ public class CommentAdapter extends RecyclerView.Adapter<CommentAdapter.ViewHold
         //Glide.with(context) 14:35
         holder.userName.setText(comments.get(position).getUser().getFullName());
         holder.content.setText(comments.get(position).getContent());
-        holder.date.setText(comments.get(position).getDate().toString());
+        SimpleDateFormat format = new SimpleDateFormat("dd/MM/YY HH:mm");
+        holder.date.setText(format.format(comments.get(position).getDate()));
 
         // TODO: swipe to delete
     }

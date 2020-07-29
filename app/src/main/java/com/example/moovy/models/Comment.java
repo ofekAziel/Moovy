@@ -3,9 +3,10 @@ package com.example.moovy.models;
 import java.util.Date;
 
 public class Comment {
-    String content;
-    User user;
-    Date date;
+    private String content;
+    private User user;
+    private Date date;
+    private String id;
 
     public Comment() {
     }
@@ -14,6 +15,14 @@ public class Comment {
         this.date = date;
         this.content = content;
         this.user = user;
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
     }
 
     public String getContent() {

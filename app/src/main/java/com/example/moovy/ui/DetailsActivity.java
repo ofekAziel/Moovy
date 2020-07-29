@@ -12,11 +12,14 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.view.Gravity;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
@@ -69,14 +72,13 @@ public class DetailsActivity extends AppCompatActivity {
         setContentView(R.layout.activity_details);
         movie = (Movie) getIntent().getSerializableExtra("selectedMovie");
         user = (User) getIntent().getSerializableExtra("user");
-
+        initRecyclerView();
         setUpScreen();
         editButtonClickListener();
         submitButtonClickListener();
         downloadMoviePhoto(getApplicationContext(), movie.getPhotoHash());
         commentInput.getEditText().addTextChangedListener(commentTextWatcher);
 
-        initRecyclerView();
     }
 
     private TextWatcher commentTextWatcher = new TextWatcher() {
@@ -101,45 +103,65 @@ public class DetailsActivity extends AppCompatActivity {
         return new Comment(commentInput.getEditText().getText().toString(), user, new Date());
     }
 
-    private void addCommentToDb() {
+    private void showToast(String message) {
+        Toast toast = Toast.makeText(
+                DetailsActivity.this,
+                message,
+                Toast.LENGTH_SHORT);
+        toast.setGravity(Gravity.TOP, 0, 0);
+        toast.show();
+    }
+
+    private void addComment() {
+        Comment comment = createComment();
         db
                 .collection("movies").document(movie.getId())
-                .collection("comments").add(createComment());
+                .collection("comments").add(comment);
+
+        comments.add(comment);
+        commentInput.getEditText().setText("");
+        closeKeyboard();
+    }
+
+    public void closeKeyboard() {
+        View view = this.getCurrentFocus();
+        if(view != null) {
+            InputMethodManager inputMethodManager = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
+            inputMethodManager.hideSoftInputFromWindow(view.getWindowToken(), 0);
+        }
     }
 
     private void submitButtonClickListener() {
         submitButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                addCommentToDb();
+                addComment();
+                showToast("Comment submitted");
             }
         });
     }
 
     private void getComments() {
-        /*CollectionReference commentReference = db
+        db
                 .collection("movies").document(movie.getId())
-                .collection("comments");
-        commentReference
-                .get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-            @RequiresApi(api = Build.VERSION_CODES.KITKAT)
-            @Override
-            public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                if (task.isSuccessful()) {
-                    for (QueryDocumentSnapshot document : Objects.requireNonNull(task.getResult())) {
-                        Comment comment = document.toObject(Comment.class);
-                        comments.add(comment);
+                .collection("comments").get()
+                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @RequiresApi(api = Build.VERSION_CODES.KITKAT)
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        if(task.isSuccessful()) {
+                            for (QueryDocumentSnapshot document : Objects.requireNonNull(task.getResult())) {
+                                Comment comment = document.toObject(Comment.class);
+                                comment.setId(document.getId());
+                                comments.add(comment);
+                            }
+                        }
                     }
-                }
-            }
-        });*/
+                });
     }
 
     private void initRecyclerView() {
         getComments();
-        comments.add(new Comment("CONCONcontent", user, new Date()));
-        comments.add(new Comment("CONCONcontent", user, new Date()));
-        comments.add(new Comment("CONCONcontent", user, new Date()));
         RecyclerView recyclerView = findViewById(R.id.comments);
         CommentAdapter commentAdapter = new CommentAdapter(this, comments);
         recyclerView.setAdapter(commentAdapter);
