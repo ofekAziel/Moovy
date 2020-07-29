@@ -2,12 +2,6 @@ package com.example.moovy.ui;
 
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.Canvas;
-import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.Drawable;
-import android.media.Image;
 import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
@@ -36,14 +30,7 @@ import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.OutputStream;
 import java.util.ArrayList;
-import java.util.Dictionary;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
 
@@ -153,7 +140,7 @@ public class MainActivity extends AppCompatActivity {
 
             movieName.setText(movies.get(position).getName());
             movieGenre.setText(movies.get(position).getGenre());
-            movieRating.setText("4/5");
+            movieRating.setText(String.valueOf(movies.get(position).getAverageRating()));
         }
 
         private void downloadMoviePhoto(View view, final int photoHash) {
