@@ -16,6 +16,8 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.example.moovy.R;
 import com.example.moovy.models.Movie;
 import com.example.moovy.models.User;
+import com.example.moovy.models.UserRating;
+import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
@@ -23,6 +25,8 @@ import java.io.ByteArrayOutputStream;
 import java.io.FileOutputStream;
 
 public class DetailsActivity extends AppCompatActivity {
+
+    private FirebaseFirestore db = FirebaseFirestore.getInstance();
     private ImageButton editButton;
     Movie movie;
     User user;
@@ -40,7 +44,23 @@ public class DetailsActivity extends AppCompatActivity {
 
         setUpScreen();
         editButtonClickListener();
+        ratingBarChangeListener();
         downloadMoviePhoto(getApplicationContext(), movie.getPhotoHash());
+    }
+
+    private void ratingBarChangeListener() {
+        ratingBar.setOnRatingBarChangeListener(new RatingBar.OnRatingBarChangeListener() {
+            @Override
+            public void onRatingChanged(RatingBar ratingBar, float rating, boolean fromUser) {
+                addRating(rating);
+            }
+        });
+    }
+
+    private void addRating(float rating) {
+        UserRating userRating = new UserRating(user.getUserUid(), user, rating);
+        db.collection("movies").document(movie.getId()).collection("userRatings")
+                .document(userRating.getId()).set(userRating);
     }
 
     private void downloadMoviePhoto(Context context, final int photoHash) {
