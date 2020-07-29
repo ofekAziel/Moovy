@@ -159,7 +159,8 @@ public class EditActivity extends AppCompatActivity {
                 "genre", movie.getGenre(),
                 "director", movie.getDirector(),
                 "starring", movie.getStarring(),
-                "photoHash", movie.getPhotoHash()).
+                "photoHash", movie.getPhotoHash(),
+                "summary", movie.getSummary()).
                 addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {

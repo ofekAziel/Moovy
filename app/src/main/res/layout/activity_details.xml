@@ -21,7 +21,7 @@
         android:id="@+id/textView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="MOOVY DETAILS"
+        android:text="@string/moovy_details"
         android:textColor="@android:color/white"
         android:textSize="18sp"
         android:textStyle="bold"
@@ -73,8 +73,8 @@
         android:layout_marginStart="10dp"
         android:layout_marginLeft="10dp"
         android:layout_marginTop="10dp"
-        android:text="TextView"
-        android:textSize="22dp"
+        android:text="@string/place_holder"
+        android:textSize="22sp"
         android:textStyle="bold"
         app:layout_constraintStart_toEndOf="@+id/imageView"
         app:layout_constraintTop_toBottomOf="@+id/toolbar2" />
@@ -86,8 +86,8 @@
         android:layout_marginStart="10dp"
         android:layout_marginLeft="10dp"
         android:layout_marginTop="10dp"
-        android:text="TextView"
-        android:textSize="18dp"
+        android:text="@string/place_holder"
+        android:textSize="18sp"
         app:layout_constraintStart_toEndOf="@+id/imageView"
         app:layout_constraintTop_toBottomOf="@+id/titleTextView" />
 
@@ -98,8 +98,8 @@
         android:layout_marginStart="10dp"
         android:layout_marginLeft="10dp"
         android:layout_marginTop="10dp"
-        android:text="TextView"
-        android:textSize="18dp"
+        android:text="@string/place_holder"
+        android:textSize="18sp"
         app:layout_constraintStart_toEndOf="@+id/imageView"
         app:layout_constraintTop_toBottomOf="@+id/genreTextView" />
 
@@ -110,8 +110,8 @@
         android:layout_marginStart="10dp"
         android:layout_marginLeft="10dp"
         android:layout_marginTop="10dp"
-        android:text="TextView"
-        android:textSize="18dp"
+        android:text="@string/place_holder"
+        android:textSize="18sp"
         app:layout_constraintStart_toEndOf="@+id/imageView"
         app:layout_constraintTop_toBottomOf="@+id/actorsTextView" />
 
@@ -133,33 +133,44 @@
         android:layout_marginStart="10dp"
         android:layout_marginLeft="10dp"
         android:layout_marginTop="10dp"
-        android:text="TextView"
-        android:textSize="18dp"
+        android:text="@string/place_holder"
+        android:textSize="18sp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/imageView" />
 
-    <GridView
-        android:id="@+id/commentSection"
-        android:layout_width="409dp"
-        android:layout_height="0dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/commentInput" />
-
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/commentInput"
-        android:layout_width="409dp"
-        android:layout_height="wrap_content"
+        android:layout_width="304dp"
+        android:layout_height="55dp"
         android:layout_marginTop="10dp"
-        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/summaryTextView">
 
         <com.google.android.material.textfield.TextInputEditText
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Write a comment" />
+            android:hint="@string/write_a_comment" />
     </com.google.android.material.textfield.TextInputLayout>
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/comments"
+        android:layout_width="409dp"
+        android:layout_height="331dp"
+        android:layout_marginTop="100dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/commentInput"
+        app:layout_constraintVertical_bias="0.51" />
+
+    <Button
+        android:id="@+id/submitButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:enabled="false"
+        android:text="@string/submit"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/commentInput"
+        app:layout_constraintTop_toTopOf="@+id/commentInput" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
