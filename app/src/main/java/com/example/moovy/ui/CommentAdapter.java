@@ -1,7 +1,6 @@
 package com.example.moovy.ui;
 
 import android.content.Context;
-import android.os.CpuUsageInfo;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -11,7 +10,6 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.bumptech.glide.Glide;
 import com.example.moovy.R;
 import com.example.moovy.models.Comment;
 
@@ -21,7 +19,7 @@ import java.util.ArrayList;
 public class CommentAdapter extends RecyclerView.Adapter<CommentAdapter.ViewHolder>{
     private static final String TAG = "CommentAdapter";
 
-    private ArrayList<Comment> comments = new ArrayList<>();
+    private ArrayList<Comment> comments;
     private Context context;
 
     public CommentAdapter(Context context, ArrayList<Comment> comments) {

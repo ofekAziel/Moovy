@@ -1,15 +1,11 @@
 package com.example.moovy.ui;
 
 import android.content.Context;
-import android.content.ContextWrapper;
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
-import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Environment;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.Gravity;
@@ -34,7 +30,6 @@ import com.example.moovy.models.User;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.textfield.TextInputLayout;
-import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
@@ -42,28 +37,21 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
 import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Objects;
 
 public class DetailsActivity extends AppCompatActivity {
-    FirebaseFirestore db = FirebaseFirestore.getInstance();
-    ImageButton editButton;
-    Movie movie;
-    User user;
-    Bitmap bitmap;
-    TextView titleTextView, genreTextView, actorsTextView, directorTextView, summaryTextView;
-    TextInputLayout commentInput;
-    ImageView imageView;
-    Button submitButton;
-
+    private FirebaseFirestore db = FirebaseFirestore.getInstance();
+    private ImageButton editButton, returnButton;
+    private Movie movie;
+    private User user;
+    private Bitmap bitmap;
+    private TextView titleTextView, genreTextView, actorsTextView, directorTextView, summaryTextView;
+    private TextInputLayout commentInput;
+    private ImageView imageView;
+    private Button submitButton;
     private ArrayList<Comment> comments = new ArrayList<>();
 
     @Override
@@ -72,16 +60,17 @@ public class DetailsActivity extends AppCompatActivity {
         setContentView(R.layout.activity_details);
         movie = (Movie) getIntent().getSerializableExtra("selectedMovie");
         user = (User) getIntent().getSerializableExtra("user");
-        initRecyclerView();
         setUpScreen();
         editButtonClickListener();
+        returnButtonClickListener();
         submitButtonClickListener();
         downloadMoviePhoto(getApplicationContext(), movie.getPhotoHash());
         commentInput.getEditText().addTextChangedListener(commentTextWatcher);
-
+        initRecyclerView();
     }
 
     private TextWatcher commentTextWatcher = new TextWatcher() {
+
         @Override
         public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
 
@@ -104,10 +93,7 @@ public class DetailsActivity extends AppCompatActivity {
     }
 
     private void showToast(String message) {
-        Toast toast = Toast.makeText(
-                DetailsActivity.this,
-                message,
-                Toast.LENGTH_SHORT);
+        Toast toast = Toast.makeText(DetailsActivity.this, message, Toast.LENGTH_SHORT);
         toast.setGravity(Gravity.TOP, 0, 0);
         toast.show();
     }
@@ -149,7 +135,7 @@ public class DetailsActivity extends AppCompatActivity {
                     @RequiresApi(api = Build.VERSION_CODES.KITKAT)
                     @Override
                     public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                        if(task.isSuccessful()) {
+                        if (task.isSuccessful()) {
                             for (QueryDocumentSnapshot document : Objects.requireNonNull(task.getResult())) {
                                 Comment comment = document.toObject(Comment.class);
                                 comment.setId(document.getId());
@@ -175,6 +161,7 @@ public class DetailsActivity extends AppCompatActivity {
 
     private void setUpScreen() {
         editButton = findViewById(R.id.editButton);
+        returnButton = findViewById(R.id.returnButton);
         submitButton = findViewById(R.id.submitButton);
         titleTextView = findViewById(R.id.titleTextView);
         genreTextView = findViewById(R.id.genreTextView);
@@ -199,10 +186,9 @@ public class DetailsActivity extends AppCompatActivity {
         actorsTextView.setText(movie.getStarring());
         directorTextView.setText(movie.getDirector());
         summaryTextView.setText(movie.getSummary());
-        imageView.setImageBitmap(bitmap);
     }
 
-    public String saveImageToFile(String fileName) {
+    public void saveImageToFile(String fileName) {
         try {
             Bitmap bitmap = ((BitmapDrawable)imageView.getDrawable()).getBitmap();
             ByteArrayOutputStream bytes = new ByteArrayOutputStream();
@@ -214,7 +200,6 @@ public class DetailsActivity extends AppCompatActivity {
             e.printStackTrace();
             fileName = null;
         }
-        return fileName;
     }
 
     private void editButtonClickListener() {
@@ -224,6 +209,17 @@ public class DetailsActivity extends AppCompatActivity {
                 Intent intent = new Intent(DetailsActivity.this, EditActivity.class);
                 intent.putExtra("selectedMovie", movie);
                 saveImageToFile(String.valueOf(movie.getPhotoHash()));
+                startActivity(intent);
+            }
+        });
+    }
+
+    private void returnButtonClickListener() {
+        returnButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(DetailsActivity.this, MainActivity.class);
+                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                 startActivity(intent);
             }
         });
