@@ -53,8 +53,15 @@ public class MainActivity extends AppCompatActivity {
         addMovieButton = findViewById(R.id.addMovieButton);
         currentUser = findViewById(R.id.currentUser);
         getCurrentUser();
-        selectAllMovies();
         addMovieButtonClickListener();
+    }
+
+    @Override
+    public void onResume()
+    {
+        super.onResume();
+        movies.clear();
+        selectAllMovies();
     }
 
     private void setUpScreenAdmin() {

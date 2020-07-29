@@ -6,9 +6,9 @@ public class UserRating implements Serializable {
 
     private String id;
     private User user;
-    private double rating;
+    private float rating;
 
-    public UserRating(String id, User user, double rating) {
+    public UserRating(String id, User user, float rating) {
         this.id = id;
         this.user = user;
         this.rating = rating;
@@ -33,11 +33,11 @@ public class UserRating implements Serializable {
         this.user = user;
     }
 
-    public double getRating() {
+    public float getRating() {
         return rating;
     }
 
-    public void setRating(double rating) {
+    public void setRating(float rating) {
         this.rating = rating;
     }
 }

@@ -17,7 +17,10 @@ import com.example.moovy.R;
 import com.example.moovy.models.Movie;
 import com.example.moovy.models.User;
 import com.example.moovy.models.UserRating;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
@@ -30,6 +33,7 @@ public class DetailsActivity extends AppCompatActivity {
     private ImageButton editButton;
     Movie movie;
     User user;
+    UserRating userRating;
     Bitmap bitmap;
     TextView titleTextView, genreTextView, actorsTextView, directorTextView, summaryTextView;
     ImageView imageView;
@@ -41,7 +45,7 @@ public class DetailsActivity extends AppCompatActivity {
         setContentView(R.layout.activity_details);
         movie = (Movie) getIntent().getSerializableExtra("selectedMovie");
         user = (User) getIntent().getSerializableExtra("user");
-
+        getRating();
         setUpScreen();
         editButtonClickListener();
         ratingBarChangeListener();
@@ -52,15 +56,47 @@ public class DetailsActivity extends AppCompatActivity {
         ratingBar.setOnRatingBarChangeListener(new RatingBar.OnRatingBarChangeListener() {
             @Override
             public void onRatingChanged(RatingBar ratingBar, float rating, boolean fromUser) {
+                updateAverageRating(rating);
                 addRating(rating);
             }
         });
     }
 
+    private void updateAverageRating(final float rating) {
+        final float prevUserRating = userRating == null ? (float) 0.0 : userRating.getRating();
+        db.collection("movies").document(movie.getId())
+                .collection("userRatings").get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+            @Override
+            public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
+                int numOfRatings = queryDocumentSnapshots.size();
+                float numerator = movie.getAverageRating() * numOfRatings + rating - prevUserRating;
+                int divider = userRating == null ? numOfRatings + 1 : numOfRatings;
+                movie.setAverageRating(numerator / divider);
+                db.collection("movies").document(movie.getId()).update("averageRating", movie.getAverageRating());
+            }
+        });
+    }
+
     private void addRating(float rating) {
-        UserRating userRating = new UserRating(user.getUserUid(), user, rating);
+        if (userRating == null) {
+            userRating = new UserRating(user.getUserUid(), user, rating);
+        } else {
+            userRating.setRating(rating);
+        }
+
         db.collection("movies").document(movie.getId()).collection("userRatings")
                 .document(userRating.getId()).set(userRating);
+    }
+
+    private void getRating() {
+        db.collection("movies").document(movie.getId()).collection("userRatings")
+                .document(user.getUserUid()).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+            @Override
+            public void onSuccess(DocumentSnapshot documentSnapshot) {
+                userRating = documentSnapshot.toObject(UserRating.class);
+                ratingBar.setRating(userRating == null ? (float) 0.0 : userRating.getRating());
+            }
+        });
     }
 
     private void downloadMoviePhoto(Context context, final int photoHash) {
