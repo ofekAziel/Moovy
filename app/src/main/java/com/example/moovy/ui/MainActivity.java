@@ -53,8 +53,15 @@ public class MainActivity extends AppCompatActivity {
         addMovieButton = findViewById(R.id.addMovieButton);
         currentUser = findViewById(R.id.currentUser);
         getCurrentUser();
-        selectAllMovies();
         addMovieButtonClickListener();
+    }
+
+    @Override
+    public void onResume()
+    {
+        super.onResume();
+        movies.clear();
+        selectAllMovies();
     }
 
     private void setUpScreenAdmin() {
@@ -140,7 +147,7 @@ public class MainActivity extends AppCompatActivity {
 
             movieName.setText(movies.get(position).getName());
             movieGenre.setText(movies.get(position).getGenre());
-            movieRating.setText("4/5");
+            movieRating.setText(String.valueOf(movies.get(position).getAverageRating()).substring(0, 3));
         }
 
         private void downloadMoviePhoto(View view, final int photoHash) {

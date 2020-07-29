@@ -14,6 +14,7 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.RatingBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -33,6 +34,11 @@ import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.example.moovy.models.UserRating;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
@@ -43,6 +49,16 @@ import java.util.Date;
 import java.util.Objects;
 
 public class DetailsActivity extends AppCompatActivity {
+
+    private FirebaseFirestore db = FirebaseFirestore.getInstance();
+    private ImageButton editButton;
+    Movie movie;
+    User user;
+    UserRating userRating;
+    Bitmap bitmap;
+    TextView titleTextView, genreTextView, actorsTextView, directorTextView, summaryTextView, averageRating;
+    ImageView imageView;
+    RatingBar ratingBar;
     private FirebaseFirestore db = FirebaseFirestore.getInstance();
     private ImageButton editButton, returnButton;
     private Movie movie;
@@ -60,8 +76,10 @@ public class DetailsActivity extends AppCompatActivity {
         setContentView(R.layout.activity_details);
         movie = (Movie) getIntent().getSerializableExtra("selectedMovie");
         user = (User) getIntent().getSerializableExtra("user");
+        getRating();
         setUpScreen();
         editButtonClickListener();
+        ratingBarChangeListener();
         returnButtonClickListener();
         submitButtonClickListener();
         downloadMoviePhoto(getApplicationContext(), movie.getPhotoHash());
@@ -154,6 +172,54 @@ public class DetailsActivity extends AppCompatActivity {
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
     }
 
+    private void ratingBarChangeListener() {
+        ratingBar.setOnRatingBarChangeListener(new RatingBar.OnRatingBarChangeListener() {
+            @Override
+            public void onRatingChanged(RatingBar ratingBar, float rating, boolean fromUser) {
+                updateAverageRating(rating);
+                addRating(rating);
+            }
+        });
+    }
+
+    private void updateAverageRating(final float rating) {
+        final float prevUserRating = userRating == null ? (float) 0.0 : userRating.getRating();
+        db.collection("movies").document(movie.getId())
+                .collection("userRatings").get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+            @Override
+            public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
+                int numOfRatings = queryDocumentSnapshots.size();
+                float numerator = movie.getAverageRating() * numOfRatings + rating - prevUserRating;
+                int divider = userRating == null ? numOfRatings + 1 : numOfRatings;
+                movie.setAverageRating(numerator / divider);
+                averageRating.setText(String.valueOf(movie.getAverageRating()).substring(0, 3));
+                db.collection("movies").document(movie.getId()).update("averageRating", movie.getAverageRating());
+            }
+        });
+    }
+
+    private void addRating(float rating) {
+        if (userRating == null) {
+            userRating = new UserRating(user.getUserUid(), user, rating);
+        } else {
+            userRating.setRating(rating);
+        }
+
+        db.collection("movies").document(movie.getId()).collection("userRatings")
+                .document(userRating.getId()).set(userRating);
+    }
+
+    private void getRating() {
+        db.collection("movies").document(movie.getId()).collection("userRatings")
+                .document(user.getUserUid()).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+            @Override
+            public void onSuccess(DocumentSnapshot documentSnapshot) {
+                userRating = documentSnapshot.toObject(UserRating.class);
+                ratingBar.setRating(userRating == null ? (float) 0.0 : userRating.getRating());
+            }
+        });
+    }
+
     private void downloadMoviePhoto(Context context, final int photoHash) {
         StorageReference imageReference = FirebaseStorage.getInstance().getReference().child("moviePhotos/" + photoHash);
         GlideApp.with(context).load(imageReference).into(imageView);
@@ -168,7 +234,9 @@ public class DetailsActivity extends AppCompatActivity {
         actorsTextView = findViewById(R.id.actorsTextView);
         directorTextView = findViewById(R.id.directorTextView);
         summaryTextView = findViewById(R.id.summaryTextView);
+        ratingBar = findViewById(R.id.ratingBar);
         imageView = findViewById(R.id.imageView);
+        averageRating = findViewById(R.id.averageRating);
         commentInput = findViewById(R.id.commentInput);
         setUpScreenAdmin();
         initializeFields();
@@ -186,6 +254,8 @@ public class DetailsActivity extends AppCompatActivity {
         actorsTextView.setText(movie.getStarring());
         directorTextView.setText(movie.getDirector());
         summaryTextView.setText(movie.getSummary());
+        averageRating.setText(String.valueOf(movie.getAverageRating()).substring(0, 3));
+        imageView.setImageBitmap(bitmap);
     }
 
     public void saveImageToFile(String fileName) {
