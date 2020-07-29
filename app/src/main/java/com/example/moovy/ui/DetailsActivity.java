@@ -72,6 +72,7 @@ public class DetailsActivity extends AppCompatActivity {
                 float numerator = movie.getAverageRating() * numOfRatings + rating - prevUserRating;
                 int divider = userRating == null ? numOfRatings + 1 : numOfRatings;
                 movie.setAverageRating(numerator / divider);
+                averageRating.setText(String.valueOf(movie.getAverageRating()).substring(0, 3));
                 db.collection("movies").document(movie.getId()).update("averageRating", movie.getAverageRating());
             }
         });
