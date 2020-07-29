@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.RatingBar;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -28,6 +29,7 @@ public class DetailsActivity extends AppCompatActivity {
     Bitmap bitmap;
     TextView titleTextView, genreTextView, actorsTextView, directorTextView, summaryTextView;
     ImageView imageView;
+    RatingBar ratingBar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -53,6 +55,7 @@ public class DetailsActivity extends AppCompatActivity {
         actorsTextView = findViewById(R.id.actorsTextView);
         directorTextView = findViewById(R.id.directorTextView);
         summaryTextView = findViewById(R.id.summaryTextView);
+        ratingBar = findViewById(R.id.ratingBar);
         imageView = findViewById(R.id.imageView);
         setUpScreenAdmin();
         initializeFields();
