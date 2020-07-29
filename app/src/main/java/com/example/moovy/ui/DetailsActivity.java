@@ -27,7 +27,7 @@ public class DetailsActivity extends AppCompatActivity {
     Movie movie;
     User user;
     Bitmap bitmap;
-    TextView titleTextView, genreTextView, actorsTextView, directorTextView, summaryTextView;
+    TextView titleTextView, genreTextView, actorsTextView, directorTextView, summaryTextView, averageRating;
     ImageView imageView;
     RatingBar ratingBar;
 
@@ -57,6 +57,7 @@ public class DetailsActivity extends AppCompatActivity {
         summaryTextView = findViewById(R.id.summaryTextView);
         ratingBar = findViewById(R.id.ratingBar);
         imageView = findViewById(R.id.imageView);
+        averageRating = findViewById(R.id.averageRating);
         setUpScreenAdmin();
         initializeFields();
     }
@@ -73,6 +74,7 @@ public class DetailsActivity extends AppCompatActivity {
         actorsTextView.setText(movie.getStarring());
         directorTextView.setText(movie.getDirector());
         summaryTextView.setText(movie.getSummary());
+        averageRating.setText(String.valueOf(movie.getAverageRating()).substring(0, 3));
         imageView.setImageBitmap(bitmap);
     }
 
