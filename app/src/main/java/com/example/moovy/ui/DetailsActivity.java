@@ -28,16 +28,14 @@ import com.example.moovy.R;
 import com.example.moovy.models.Comment;
 import com.example.moovy.models.Movie;
 import com.example.moovy.models.User;
+import com.example.moovy.models.UserRating;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.textfield.TextInputLayout;
-import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.QueryDocumentSnapshot;
-import com.google.firebase.firestore.QuerySnapshot;
-import com.example.moovy.models.UserRating;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
@@ -51,20 +49,12 @@ import java.util.Objects;
 public class DetailsActivity extends AppCompatActivity {
 
     private FirebaseFirestore db = FirebaseFirestore.getInstance();
-    private ImageButton editButton;
-    Movie movie;
-    User user;
-    UserRating userRating;
-    Bitmap bitmap;
-    TextView titleTextView, genreTextView, actorsTextView, directorTextView, summaryTextView, averageRating;
-    ImageView imageView;
-    RatingBar ratingBar;
-    private FirebaseFirestore db = FirebaseFirestore.getInstance();
-    private ImageButton editButton, returnButton;
     private Movie movie;
     private User user;
-    private Bitmap bitmap;
-    private TextView titleTextView, genreTextView, actorsTextView, directorTextView, summaryTextView;
+    private UserRating userRating;
+    private RatingBar ratingBar;
+    private ImageButton editButton, returnButton;
+    private TextView titleTextView, genreTextView, actorsTextView, directorTextView, summaryTextView, averageRating;
     private TextInputLayout commentInput;
     private ImageView imageView;
     private Button submitButton;
@@ -255,7 +245,6 @@ public class DetailsActivity extends AppCompatActivity {
         directorTextView.setText(movie.getDirector());
         summaryTextView.setText(movie.getSummary());
         averageRating.setText(String.valueOf(movie.getAverageRating()).substring(0, 3));
-        imageView.setImageBitmap(bitmap);
     }
 
     public void saveImageToFile(String fileName) {
