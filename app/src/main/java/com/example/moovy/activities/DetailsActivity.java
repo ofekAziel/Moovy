@@ -21,15 +21,19 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProviders;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.moovy.R;
+import com.example.moovy.UserDataLoadListener;
 import com.example.moovy.adapters.CommentAdapter;
 import com.example.moovy.models.Comment;
 import com.example.moovy.models.Movie;
 import com.example.moovy.models.User;
 import com.example.moovy.models.UserRating;
+import com.example.moovy.viewModel.UserViewModel;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
@@ -47,11 +51,11 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.Objects;
 
-public class DetailsActivity extends AppCompatActivity {
+public class DetailsActivity extends AppCompatActivity implements UserDataLoadListener {
 
     private FirebaseFirestore db = FirebaseFirestore.getInstance();
     private Movie movie;
-    private User user;
+    private User currentUser;
     private UserRating userRating;
     private RatingBar ratingBar;
     private ImageButton editButton, returnButton;
@@ -60,22 +64,40 @@ public class DetailsActivity extends AppCompatActivity {
     private ImageView imageView;
     private Button submitButton;
     private ArrayList<Comment> comments = new ArrayList<>();
+    private UserViewModel userViewModel;
 
+    @RequiresApi(api = Build.VERSION_CODES.KITKAT)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_details);
         movie = (Movie) getIntent().getSerializableExtra("selectedMovie");
-        user = (User) getIntent().getSerializableExtra("user");
-        getRating();
+        userViewModel = ViewModelProviders.of(this).get(UserViewModel.class);
+        userViewModel.init(DetailsActivity.this);
         setUpScreen();
         editButtonClickListener();
-        ratingBarChangeListener();
         returnButtonClickListener();
-        submitButtonClickListener();
         downloadMoviePhoto(getApplicationContext(), movie.getPhotoHash());
         commentInput.getEditText().addTextChangedListener(commentTextWatcher);
         initRecyclerView();
+    }
+
+    private void loadAfterUserLoad() {
+        setUpScreenAdmin();
+        getRating();
+        ratingBarChangeListener();
+        submitButtonClickListener();
+    }
+
+    @Override
+    public void onUserLoad() {
+        userViewModel.getUser().observe(this, new Observer<User>() {
+            @Override
+            public void onChanged(User user) {
+                currentUser = user;
+                loadAfterUserLoad();
+            }
+        });
     }
 
     private TextWatcher commentTextWatcher = new TextWatcher() {
@@ -98,7 +120,7 @@ public class DetailsActivity extends AppCompatActivity {
     };
 
     private Comment createComment() {
-        return new Comment(commentInput.getEditText().getText().toString(), user, new Date());
+        return new Comment(commentInput.getEditText().getText().toString(), currentUser, new Date());
     }
 
     private void showToast(String message) {
@@ -191,7 +213,7 @@ public class DetailsActivity extends AppCompatActivity {
 
     private void addRating(float rating) {
         if (userRating == null) {
-            userRating = new UserRating(user.getUserUid(), user, rating);
+            userRating = new UserRating(currentUser.getUserUid(), currentUser, rating);
         } else {
             userRating.setRating(rating);
         }
@@ -202,7 +224,7 @@ public class DetailsActivity extends AppCompatActivity {
 
     private void getRating() {
         db.collection("movies").document(movie.getId()).collection("userRatings")
-                .document(user.getUserUid()).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                .document(currentUser.getUserUid()).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
             @Override
             public void onSuccess(DocumentSnapshot documentSnapshot) {
                 userRating = documentSnapshot.toObject(UserRating.class);
@@ -229,12 +251,11 @@ public class DetailsActivity extends AppCompatActivity {
         imageView = findViewById(R.id.imageView);
         averageRating = findViewById(R.id.averageRating);
         commentInput = findViewById(R.id.commentInput);
-        setUpScreenAdmin();
         initializeFields();
     }
 
     private void setUpScreenAdmin() {
-        if (!user.isAdmin()) {
+        if (!currentUser.isAdmin()) {
             editButton.setVisibility(View.GONE);
         }
     }

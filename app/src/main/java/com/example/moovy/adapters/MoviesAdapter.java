@@ -15,7 +15,6 @@ import com.example.moovy.R;
 import com.example.moovy.activities.DetailsActivity;
 import com.example.moovy.activities.GlideApp;
 import com.example.moovy.models.Movie;
-import com.example.moovy.models.User;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
@@ -24,11 +23,9 @@ import java.util.List;
 public class MoviesAdapter extends BaseAdapter {
 
     private List<Movie> movies;
-    private User user;
 
-    public MoviesAdapter(List<Movie> movies, User user) {
+    public MoviesAdapter(List<Movie> movies) {
         this.movies = movies;
-        this.user = user;
     }
 
     @Override
@@ -80,7 +77,6 @@ public class MoviesAdapter extends BaseAdapter {
                 Context context = v.getContext();
                 Intent mainIntent = new Intent(context, DetailsActivity.class);
                 mainIntent.putExtra("selectedMovie", selectedMovie);
-                mainIntent.putExtra("user", user);
                 context.startActivity(mainIntent);
             }
         });
