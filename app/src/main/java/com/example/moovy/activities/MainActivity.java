@@ -1,4 +1,4 @@
-package com.example.moovy.ui;
+package com.example.moovy.activities;
 
 import android.content.Context;
 import android.content.Intent;

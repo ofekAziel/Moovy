@@ -1,4 +1,4 @@
-package com.example.moovy.ui;
+package com.example.moovy.activities;
 
 import android.content.Context;
 import android.content.Intent;
@@ -25,6 +25,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.moovy.R;
+import com.example.moovy.adapters.CommentAdapter;
 import com.example.moovy.models.Comment;
 import com.example.moovy.models.Movie;
 import com.example.moovy.models.User;

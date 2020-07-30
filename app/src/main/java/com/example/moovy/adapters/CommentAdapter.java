@@ -1,4 +1,4 @@
-package com.example.moovy.ui;
+package com.example.moovy.adapters;
 
 import android.content.Context;
 import android.util.Log;
