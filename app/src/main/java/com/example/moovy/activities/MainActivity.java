@@ -1,49 +1,41 @@
 package com.example.moovy.activities;
 
-import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
-import android.view.ViewGroup;
-import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.GridView;
-import android.widget.ImageView;
 import android.widget.TextView;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProviders;
 
+import com.example.moovy.DataLoadListener;
 import com.example.moovy.R;
 import com.example.moovy.adapters.MoviesAdapter;
 import com.example.moovy.models.Movie;
 import com.example.moovy.models.User;
-import com.google.android.gms.tasks.OnCompleteListener;
+import com.example.moovy.viewModel.MainActivityViewModel;
 import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
-import com.google.firebase.storage.FirebaseStorage;
-import com.google.firebase.storage.StorageReference;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements DataLoadListener {
 
-    FirebaseFirestore db = FirebaseFirestore.getInstance();
-    private FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
-    GridView movieGrid;
-    TextView currentUser;
-    User user;
-    Button addMovieButton;
-    List<Movie> movies = new ArrayList<>();
+    private GridView movieGrid;
+    private TextView currentUser;
+    private User user;
+    private Button addMovieButton;
+    private MainActivityViewModel mainActivityViewModel;
+    private MoviesAdapter moviesAdapter;
 
     @RequiresApi(api = Build.VERSION_CODES.KITKAT)
     @Override
@@ -53,37 +45,39 @@ public class MainActivity extends AppCompatActivity {
         movieGrid = findViewById(R.id.movieGrid);
         addMovieButton = findViewById(R.id.addMovieButton);
         currentUser = findViewById(R.id.currentUser);
-        getCurrentUser();
         addMovieButtonClickListener();
+        mainActivityViewModel = ViewModelProviders.of(this).get(MainActivityViewModel.class);
+        mainActivityViewModel.init(MainActivity.this);
+        setMovieAdapter();
     }
 
     @Override
-    public void onResume()
-    {
-        super.onResume();
-        movies.clear();
-        selectAllMovies();
-    }
-
-    private void setUpScreenAdmin() {
-        String userDisplayName = "Hello " + user.getFullName();
-        currentUser.setText(userDisplayName);
-
-        if (!user.isAdmin()) {
-            addMovieButton.setVisibility(View.GONE);
-        }
-    }
-
-    @RequiresApi(api = Build.VERSION_CODES.KITKAT)
-    private void getCurrentUser() {
-        String currentUserUid = Objects.requireNonNull(firebaseAuth.getCurrentUser()).getUid();
-        db.collection("users").whereEqualTo("userUid", currentUserUid).limit(1).get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+    public void onMoviesLoad() {
+        mainActivityViewModel.getMovies().observe(this, new Observer<List<Movie>>() {
             @Override
-            public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
-                user = queryDocumentSnapshots.getDocuments().get(0).toObject(User.class);
+            public void onChanged(List<Movie> movies) {
+                moviesAdapter.notifyDataSetChanged();
+            }
+        });
+    }
+
+    @Override
+    public void onUserLoad() {
+        mainActivityViewModel.getUser().observe(this, new Observer<User>() {
+            @Override
+            public void onChanged(User user) {
                 setUpScreenAdmin();
             }
         });
+    }
+
+    private void setUpScreenAdmin() {
+        String userDisplayName = "Hello " + mainActivityViewModel.getUser().getValue().getFullName();
+        currentUser.setText(userDisplayName);
+
+        if (!mainActivityViewModel.getUser().getValue().isAdmin()) {
+            addMovieButton.setVisibility(View.GONE);
+        }
     }
 
     private void addMovieButtonClickListener() {
@@ -96,22 +90,8 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    private void selectAllMovies() {
-        db.collection("movies").get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-            @RequiresApi(api = Build.VERSION_CODES.KITKAT)
-            @Override
-            public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                if (task.isSuccessful()) {
-                    for (QueryDocumentSnapshot document : Objects.requireNonNull(task.getResult())) {
-                        Movie movie = document.toObject(Movie.class);
-                        movie.setId(document.getId());
-                        movies.add(movie);
-                    }
-
-                    MoviesAdapter moviesAdapter = new MoviesAdapter(movies, user);
-                    movieGrid.setAdapter(moviesAdapter);
-                }
-            }
-        });
+    private void setMovieAdapter() {
+        moviesAdapter = new MoviesAdapter(mainActivityViewModel.getMovies().getValue(), mainActivityViewModel.getUser().getValue());
+        movieGrid.setAdapter(moviesAdapter);
     }
 }
