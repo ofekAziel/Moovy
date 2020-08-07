@@ -10,6 +10,8 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.fragment.app.Fragment;
+import androidx.navigation.NavController;
+import androidx.navigation.Navigation;
 
 import android.view.LayoutInflater;
 import android.view.View;
@@ -60,7 +62,6 @@ public class FeedFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        //setContentView(R.layout.activity_main);
         movieGrid = getView().findViewById(R.id.movieGrid);
         addMovieButton = getView().findViewById(R.id.addMovieButton);
         currentUser = getView().findViewById(R.id.currentUser);
@@ -100,11 +101,15 @@ public class FeedFragment extends Fragment {
     private void addMovieButtonClickListener() {
         addMovieButton.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View v) {
-                //Intent mainIntent = new Intent(MainActivity.this, EditActivity.class);
-                //MainActivity.this.startActivity(mainIntent);
+            public void onClick(View view) {
+                NavController navCtrl = Navigation.findNavController(view);
+
+                FeedFragmentDirections.ActionFeedFragmentToUpdateFragment directions
+                        = FeedFragmentDirections.actionFeedFragmentToUpdateFragment(new Movie());
+                navCtrl.navigate(directions);
             }
         });
+                //Navigation.createNavigateOnClickListener(R.id.action_feedFragment_to_updateFragment));
     }
 
     private void selectAllMovies() {
@@ -174,11 +179,10 @@ public class FeedFragment extends Fragment {
             movieCard.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    Context context = v.getContext();
-                    Intent mainIntent = new Intent(context, DetailsActivity.class);
-                    mainIntent.putExtra("selectedMovie", selectedMovie);
-                    mainIntent.putExtra("user", user);
-                    context.startActivity(mainIntent);
+                    NavController navCtrl = Navigation.findNavController(v);
+                    FeedFragmentDirections.ActionFeedFragmentToDetailsFragment directions
+                            = FeedFragmentDirections.actionFeedFragmentToDetailsFragment (selectedMovie);
+                    navCtrl.navigate(directions);
                 }
             });
         }

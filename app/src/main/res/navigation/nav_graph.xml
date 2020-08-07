@@ -30,5 +30,34 @@
         android:id="@+id/feedFragment"
         android:name="com.example.moovy.ui.FeedFragment"
         android:label="fragment_feed"
-        tools:layout="@layout/fragment_feed" />
+        tools:layout="@layout/fragment_feed" >
+        <action
+            android:id="@+id/action_feedFragment_to_updateFragment"
+            app:destination="@id/updateFragment" >
+        </action>
+        <action
+            android:id="@+id/action_feedFragment_to_detailsFragment"
+            app:destination="@id/detailsFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/updateFragment"
+        android:name="com.example.moovy.ui.UpdateFragment"
+        android:label="fragment_update"
+        tools:layout="@layout/fragment_update" >
+        <argument
+            android:name="movie"
+            app:argType="com.example.moovy.models.Movie" />
+    </fragment>
+    <fragment
+        android:id="@+id/detailsFragment"
+        android:name="com.example.moovy.ui.DetailsFragment"
+        android:label="fragment_details"
+        tools:layout="@layout/fragment_details" >
+        <argument
+            android:name="movie"
+            app:argType="com.example.moovy.models.Movie" />
+        <action
+            android:id="@+id/action_detailsFragment_to_updateFragment"
+            app:destination="@id/updateFragment" />
+    </fragment>
 </navigation>
