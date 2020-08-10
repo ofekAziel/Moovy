@@ -1,5 +1,7 @@
 <resources>
     <string name="app_name">Moovy</string>
+    <string name="place_holder">"PLACE HOLDER"</string>
+
     <!-- Strings related to login -->
     <string name="prompt_email">Email</string>
     <string name="prompt_password">Password</string>
@@ -14,8 +16,15 @@
     <string name="title_activity_sign_up">Sign up</string>
     <string name="login_failed">"Login failed"</string>
     <string name="movie_photo">"this is the movie photo"</string>
+
     <string name="movie_feed_screen_name">"MOOVY FEED"</string>
     <string name="add_movie_button">"add movie"</string>
     <string name="first_name_text">"First Name"</string>
     <string name="last_name_text">"Last Name"</string>
+
+    <!-- String related to details activity -->
+    <string name="moovy_details">"MOOVY DETAILS"</string>
+    <string name="write_a_comment">"Write a comment"</string>
+    <string name="submit">"Submit"</string>
+
 </resources>
