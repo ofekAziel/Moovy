@@ -1,8 +1,8 @@
-package com.example.moovy.ui;
-
-import androidx.appcompat.app.AppCompatActivity;
+package com.example.moovy.activities;
 
 import android.os.Bundle;
+
+import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.moovy.R;
 
