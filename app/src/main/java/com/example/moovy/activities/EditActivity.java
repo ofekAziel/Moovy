@@ -1,4 +1,4 @@
-package com.example.moovy.ui;
+package com.example.moovy.activities;
 
 import android.Manifest;
 import android.app.Activity;
@@ -38,9 +38,7 @@ import com.google.firebase.storage.UploadTask;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.lang.reflect.Field;
 import java.util.Arrays;
 
 public class EditActivity extends AppCompatActivity {
@@ -159,7 +157,8 @@ public class EditActivity extends AppCompatActivity {
                 "genre", movie.getGenre(),
                 "director", movie.getDirector(),
                 "starring", movie.getStarring(),
-                "photoHash", movie.getPhotoHash()).
+                "photoHash", movie.getPhotoHash(),
+                "summary", movie.getSummary()).
                 addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {
