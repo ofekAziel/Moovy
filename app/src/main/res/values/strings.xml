@@ -16,7 +16,6 @@
     <string name="title_activity_sign_up">Sign up</string>
     <string name="login_failed">"Login failed"</string>
     <string name="movie_photo">"this is the movie photo"</string>
-
     <string name="movie_feed_screen_name">"MOOVY FEED"</string>
     <string name="add_movie_button">"add movie"</string>
     <string name="first_name_text">"First Name"</string>
@@ -27,4 +26,6 @@
     <string name="write_a_comment">"Write a comment"</string>
     <string name="submit">"Submit"</string>
 
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>
