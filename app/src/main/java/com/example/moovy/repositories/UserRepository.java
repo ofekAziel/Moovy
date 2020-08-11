@@ -1,9 +1,7 @@
 package com.example.moovy.repositories;
 
 import android.content.Context;
-import android.os.Build;
 
-import androidx.annotation.RequiresApi;
 import androidx.lifecycle.MutableLiveData;
 
 import com.example.moovy.UserDataLoadListener;
@@ -12,8 +10,6 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
-
-import java.util.Objects;
 
 public class UserRepository {
 
@@ -36,15 +32,13 @@ public class UserRepository {
         return instance;
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.KITKAT)
     public MutableLiveData<User> getUser() {
         loadUser();
         return userData;
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.KITKAT)
     private void loadUser() {
-        String currentUserUid = Objects.requireNonNull(firebaseAuth.getCurrentUser()).getUid();
+        String currentUserUid = firebaseAuth.getCurrentUser().getUid();
         db.collection("users").whereEqualTo("userUid", currentUserUid).limit(1).get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
             @Override
             public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
@@ -53,5 +47,11 @@ public class UserRepository {
                 userDataLoadListener.onUserLoad();
             }
         });
+    }
+
+    public void addUser(User user, String userUid) {
+        user.setUserUid(userUid);
+        user.setAdmin(false);
+        db.collection("users").add(user);
     }
 }

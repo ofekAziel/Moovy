@@ -25,13 +25,13 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.lifecycle.ViewModelProviders;
 
+import com.example.moovy.MoviesDataLoadListener;
 import com.example.moovy.R;
 import com.example.moovy.models.Movie;
+import com.example.moovy.viewModel.MoviesViewModel;
 import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.firebase.firestore.DocumentReference;
-import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
@@ -41,17 +41,19 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.Arrays;
 
-public class EditActivity extends AppCompatActivity {
+public class EditActivity extends AppCompatActivity implements MoviesDataLoadListener {
 
     private ImageView imageView;
     private EditText nameInput, genreInput, directorInput, starringInput, summaryInput;
     private Button updateButton, deleteButton, cancelButton;
     private Movie movie;
-    final FirebaseFirestore db = FirebaseFirestore.getInstance();
+    private MoviesViewModel moviesViewModel;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        moviesViewModel = ViewModelProviders.of(this).get(MoviesViewModel.class);
+        moviesViewModel.init(EditActivity.this);
         Movie selectedMovie = (Movie) getIntent().getSerializableExtra("selectedMovie");
         if(selectedMovie != null)
             this.movie = selectedMovie;
@@ -64,28 +66,22 @@ public class EditActivity extends AppCompatActivity {
         deleteButtonClickListener();
     }
 
+    @Override
+    public void onMoviesLoad() {
+    }
+
     public void deletePhoto() {
-        // don't delete default photo
         if(this.movie.getPhotoHash() == 0)
             return;
         FirebaseStorage.getInstance().getReference().child("moviePhotos/" + this.movie.getPhotoHash()).delete();
-    }
-
-    public void deleteMovie() {
-        deletePhoto();
-        db.collection("movies").document(this.movie.getId()).delete().addOnSuccessListener(new OnSuccessListener<Void>() {
-            @Override
-            public void onSuccess(Void aVoid) {
-                showToast("Movie deleted");
-            }
-        });
     }
 
     private void deleteButtonClickListener() {
         deleteButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                deleteMovie();
+                deletePhoto();
+                moviesViewModel.deleteMovie(movie);
                 Intent mainIntent = new Intent(EditActivity.this, MainActivity.class);
                 mainIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                 EditActivity.this.startActivity(mainIntent);
@@ -117,13 +113,13 @@ public class EditActivity extends AppCompatActivity {
             public void onClick(View view) {
                 if(movie.isNewMovie()) {
                     setMovie();
-                    addMovieToDb();
+                    moviesViewModel.addMovie(movie);
                 }
                 else {
                     setMovie();
-                    updateMovieInDb();
+                    moviesViewModel.updateMovie(movie);
                 }
-                addImageToDb();
+                addImageToStorage();
                 Intent mainIntent = new Intent(EditActivity.this, MainActivity.class);
                 mainIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                 EditActivity.this.startActivity(mainIntent);
@@ -131,7 +127,7 @@ public class EditActivity extends AppCompatActivity {
         });
     }
 
-    private void addImageToDb() {
+    private void addImageToStorage() {
         Bitmap bitmap = ((BitmapDrawable) imageView.getDrawable()).getBitmap();
 
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -149,38 +145,6 @@ public class EditActivity extends AppCompatActivity {
                 showToast("Failed to upload image");
             }
         });
-    }
-
-    private void updateMovieInDb() {
-        db.collection("movies").document(this.movie.getId()).update(
-                "name", movie.getName(),
-                "genre", movie.getGenre(),
-                "director", movie.getDirector(),
-                "starring", movie.getStarring(),
-                "photoHash", movie.getPhotoHash(),
-                "summary", movie.getSummary()).
-                addOnSuccessListener(new OnSuccessListener<Void>() {
-                    @Override
-                    public void onSuccess(Void aVoid) {
-                        showToast("Movie updated");
-                    }
-                });
-    }
-
-    private void addMovieToDb() {
-        db.collection("movies").add(movie)
-            .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
-                @Override
-                public void onSuccess(DocumentReference documentReference) {
-                    showToast("Movie added");
-                }
-            })
-            .addOnFailureListener(new OnFailureListener() {
-                @Override
-                public void onFailure(@NonNull Exception e) {
-                    showToast("Failed to add movie");
-                }
-            });
     }
 
     private void setMovie() {
@@ -220,6 +184,7 @@ public class EditActivity extends AppCompatActivity {
         updateButton = findViewById(R.id.updateButton);
         deleteButton = findViewById(R.id.deleteButton);
         cancelButton = findViewById(R.id.cancelButton);
+
         if (movie != null) {
             nameInput.setText(movie.getName());
             genreInput.setText(movie.getGenre());
@@ -236,32 +201,22 @@ public class EditActivity extends AppCompatActivity {
 
     private void selectImage(Context context) {
         final CharSequence[] options = { "Take Photo", "Choose from Gallery","Cancel" };
-
         AlertDialog.Builder builder = new AlertDialog.Builder(context);
         builder.setTitle("Choose the movie picture");
-
         builder.setItems(options, new DialogInterface.OnClickListener() {
 
             @Override
             public void onClick(DialogInterface dialog, int item) {
-
                 if (options[item].equals("Take Photo")) {
                     Intent takePicture = new Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
                     startActivityForResult(takePicture, 0);
 
                 } else if (options[item].equals("Choose from Gallery")) {
                     if (ContextCompat.checkSelfPermission(getContext(), Manifest.permission.WRITE_EXTERNAL_STORAGE)!= PackageManager.PERMISSION_GRANTED) {
-                        // Permission is not granted
                         if (ActivityCompat.shouldShowRequestPermissionRationale((Activity) getContext(),
                                 Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
-                            // Show an explanation to the user *asynchronously* -- don't block
-                            // this thread waiting for the user's response! After the user
-                            // sees the explanation, try again to request the permission.
                         } else {
-                            // No explanation needed; request the permission
-                            ActivityCompat.requestPermissions((Activity) getContext(),
-                                    new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
-                                    1660); // I hope this is the right code
+                            ActivityCompat.requestPermissions((Activity) getContext(), new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 1660);
                         }
                     }
 
@@ -273,6 +228,7 @@ public class EditActivity extends AppCompatActivity {
                 }
             }
         });
+
         builder.show();
     }
 
@@ -287,6 +243,7 @@ public class EditActivity extends AppCompatActivity {
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
         if (resultCode != RESULT_CANCELED) {
             switch (requestCode) {
                 case 0:
@@ -298,7 +255,7 @@ public class EditActivity extends AppCompatActivity {
                     break;
                 case 1:
                     if (resultCode == RESULT_OK && data != null) {
-                        Uri selectedImage =  data.getData();
+                        Uri selectedImage = data.getData();
                         String[] filePathColumn = {MediaStore.Images.Media.DATA};
                         if (selectedImage != null) {
                             Cursor cursor = getContentResolver().query(selectedImage,
@@ -311,7 +268,7 @@ public class EditActivity extends AppCompatActivity {
                                 // error when picking gallery image in next line, probably permission issues
                                 imageView.setImageBitmap(BitmapFactory.decodeFile(picturePath));
                                 File imgFile = new File(picturePath);
-                                if(imgFile.exists()) {
+                                if (imgFile.exists()) {
                                     Bitmap myBitmap = BitmapFactory.decodeFile(imgFile.getAbsolutePath());
                                     imageView.setImageBitmap(myBitmap);
                                 }

@@ -57,4 +57,22 @@ public class MoviesRepository {
             }
         });
     }
+
+    public void addMovie(Movie movie) {
+        db.collection("movies").add(movie);
+    }
+
+    public void updateMovie(Movie movie) {
+        db.collection("movies").document(movie.getId()).update(
+                "name", movie.getName(),
+                "genre", movie.getGenre(),
+                "director", movie.getDirector(),
+                "starring", movie.getStarring(),
+                "photoHash", movie.getPhotoHash(),
+                "summary", movie.getSummary());
+    }
+
+    public void deleteMovie(String movieId) {
+        db.collection("movies").document(movieId).delete();
+    }
 }

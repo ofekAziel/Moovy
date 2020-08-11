@@ -31,9 +31,6 @@ public class CommentsViewModel extends ViewModel {
     public void addComment(Comment comment, String movieId) {
         if (comments != null) {
             commentsRepository.addComment(comment, movieId);
-            List<Comment> newComments = comments.getValue();
-            newComments.add(comment);
-            comments.setValue(newComments);
         }
     }
 }

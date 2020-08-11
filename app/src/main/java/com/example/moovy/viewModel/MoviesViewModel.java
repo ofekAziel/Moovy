@@ -27,4 +27,22 @@ public class MoviesViewModel extends ViewModel {
     public LiveData<List<Movie>> getMovies() {
         return movies;
     }
+
+    public void addMovie(Movie movie) {
+        if (movies != null) {
+            moviesRepository.addMovie(movie);
+        }
+    }
+
+    public void updateMovie(Movie movie) {
+        if (movies != null) {
+            moviesRepository.updateMovie(movie);
+        }
+    }
+
+    public void deleteMovie(Movie movie) {
+        if (movies != null) {
+            moviesRepository.deleteMovie(movie.getId());
+        }
+    }
 }

@@ -11,26 +11,27 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.lifecycle.ViewModelProviders;
 
 import com.example.moovy.R;
+import com.example.moovy.UserDataLoadListener;
 import com.example.moovy.models.User;
 import com.example.moovy.services.ValidationService;
+import com.example.moovy.viewModel.UserViewModel;
 import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.Objects;
 
-public class SignUpActivity extends AppCompatActivity {
+public class SignUpActivity extends AppCompatActivity implements UserDataLoadListener {
 
     private EditText firstName, lastName, username, password;
     private Button signUpButton;
     private FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
     private ValidationService validationService = new ValidationService();
-    private final FirebaseFirestore db = FirebaseFirestore.getInstance();
+    private UserViewModel userViewModel;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,7 +42,13 @@ public class SignUpActivity extends AppCompatActivity {
         username = findViewById(R.id.username);
         password = findViewById(R.id.password);
         signUpButton = findViewById(R.id.signUp);
+        userViewModel = ViewModelProviders.of(this).get(UserViewModel.class);
+        userViewModel.init(SignUpActivity.this);
         signUpButtonClickListener();
+    }
+
+    @Override
+    public void onUserLoad() {
     }
 
     private void signUpButtonClickListener() {
@@ -82,21 +89,10 @@ public class SignUpActivity extends AppCompatActivity {
                     Toast.makeText(SignUpActivity.this, "Cannot signUp", Toast.LENGTH_SHORT).show();
                 } else {
                     String userUid = Objects.requireNonNull(Objects.requireNonNull(task.getResult()).getUser()).getUid();
-                    saveUserToDatabase(user, userUid);
+                    userViewModel.addUser(user, userUid);
                     Intent mainIntent = new Intent(SignUpActivity.this, MainActivity.class);
                     SignUpActivity.this.startActivity(mainIntent);
                 }
-            }
-        });
-    }
-
-    private void saveUserToDatabase(User user, String userUid) {
-        user.setUserUid(userUid);
-        user.setAdmin(false);
-        db.collection("users").add(user).addOnFailureListener(new OnFailureListener() {
-            @Override
-            public void onFailure(@NonNull Exception e) {
-                Toast.makeText(SignUpActivity.this, "Cannot save user", Toast.LENGTH_SHORT).show();
             }
         });
     }

@@ -1,9 +1,7 @@
 package com.example.moovy.viewModel;
 
 import android.content.Context;
-import android.os.Build;
 
-import androidx.annotation.RequiresApi;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
@@ -16,7 +14,6 @@ public class UserViewModel extends ViewModel {
     private UserRepository userRepository;
     private MutableLiveData<User> user;
 
-    @RequiresApi(api = Build.VERSION_CODES.KITKAT)
     public void init(Context context) {
         userRepository = UserRepository.getInstance(context);
 
@@ -27,5 +24,11 @@ public class UserViewModel extends ViewModel {
 
     public LiveData<User> getUser() {
         return user;
+    }
+
+    public void addUser(User user, String userUid) {
+        if (user != null) {
+            userRepository.addUser(user, userUid);
+        }
     }
 }
