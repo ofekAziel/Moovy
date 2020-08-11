@@ -1,6 +1,6 @@
 package com.example.moovy;
 
-public interface MovieDataLoadListener {
+public interface MoviesDataLoadListener {
 
     void onMoviesLoad();
 }
