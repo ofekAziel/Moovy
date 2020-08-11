@@ -63,4 +63,9 @@ public class CommentsRepository {
         db.collection("movies").document(movieId)
                 .collection("comments").add(comment);
     }
+
+    public void deleteComment(String movieId, String commentId) {
+        db.collection("movies").document(movieId)
+                .collection("comments").document(commentId).delete();
+    }
 }
