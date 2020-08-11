@@ -5,7 +5,7 @@ import android.content.Context;
 import androidx.annotation.Nullable;
 import androidx.lifecycle.MutableLiveData;
 
-import com.example.moovy.MovieDataLoadListener;
+import com.example.moovy.MoviesDataLoadListener;
 import com.example.moovy.models.Movie;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
@@ -22,7 +22,7 @@ public class MoviesRepository {
     private FirebaseFirestore db = FirebaseFirestore.getInstance();
     private List<Movie> movies = new ArrayList<>();
     private static Context mContext;
-    private static MovieDataLoadListener movieDataLoadListener;
+    private static MoviesDataLoadListener moviesDataLoadListener;
 
     public static MoviesRepository getInstance(Context context) {
         mContext = context;
@@ -31,7 +31,7 @@ public class MoviesRepository {
             instance = new MoviesRepository();
         }
 
-        movieDataLoadListener = (MovieDataLoadListener) mContext;
+        moviesDataLoadListener = (MoviesDataLoadListener) mContext;
         return instance;
     }
 
@@ -53,7 +53,7 @@ public class MoviesRepository {
                     movies.add(movie);
                 }
 
-                movieDataLoadListener.onMoviesLoad();
+                moviesDataLoadListener.onMoviesLoad();
             }
         });
     }

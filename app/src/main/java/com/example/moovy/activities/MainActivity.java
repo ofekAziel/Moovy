@@ -13,7 +13,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProviders;
 
-import com.example.moovy.MovieDataLoadListener;
+import com.example.moovy.MoviesDataLoadListener;
 import com.example.moovy.R;
 import com.example.moovy.UserDataLoadListener;
 import com.example.moovy.adapters.MoviesAdapter;
@@ -24,7 +24,7 @@ import com.example.moovy.viewModel.UserViewModel;
 
 import java.util.List;
 
-public class MainActivity extends AppCompatActivity implements MovieDataLoadListener, UserDataLoadListener {
+public class MainActivity extends AppCompatActivity implements MoviesDataLoadListener, UserDataLoadListener {
 
     private GridView movieGrid;
     private TextView currentUser;
