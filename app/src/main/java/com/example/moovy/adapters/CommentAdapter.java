@@ -14,15 +14,15 @@ import com.example.moovy.R;
 import com.example.moovy.models.Comment;
 
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
+import java.util.List;
 
 public class CommentAdapter extends RecyclerView.Adapter<CommentAdapter.ViewHolder>{
     private static final String TAG = "CommentAdapter";
 
-    private ArrayList<Comment> comments;
+    private List<Comment> comments;
     private Context context;
 
-    public CommentAdapter(Context context, ArrayList<Comment> comments) {
+    public CommentAdapter(Context context, List<Comment> comments) {
         this.context = context;
         this.comments = comments;
     }
