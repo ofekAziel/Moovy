@@ -1,5 +1,6 @@
 package com.example.moovy.activities;
 
+import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -13,11 +14,14 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProviders;
 import androidx.navigation.Navigation;
 
 import com.example.moovy.R;
+import com.example.moovy.UserDataLoadListener;
 import com.example.moovy.models.User;
 import com.example.moovy.services.ValidationService;
+import com.example.moovy.viewModel.UserViewModel;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.Task;
@@ -27,13 +31,13 @@ import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.Objects;
 
-public class SignUpFragment extends Fragment {
+public class SignUpFragment extends Fragment implements UserDataLoadListener {
 
     private EditText firstName, lastName, username, password;
     private Button signUpButton;
     private FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
     private ValidationService validationService = new ValidationService();
-    private final FirebaseFirestore db = FirebaseFirestore.getInstance();
+    private UserViewModel userViewModel;
 
     public SignUpFragment() {
     }
@@ -47,13 +51,18 @@ public class SignUpFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        //setContentView(R.layout.activity_sign_up);
         firstName = getView().findViewById(R.id.firstName);
         lastName = getView().findViewById(R.id.lastName);
         username = getView().findViewById(R.id.username);
         password = getView().findViewById(R.id.password);
         signUpButton = getView().findViewById(R.id.signUp);
+        userViewModel = ViewModelProviders.of(this).get(UserViewModel.class);
+        userViewModel.init(getActivity());
         signUpButtonClickListener();
+    }
+
+    @Override
+    public void onUserLoad() {
     }
 
     private void signUpButtonClickListener() {
@@ -91,24 +100,14 @@ public class SignUpFragment extends Fragment {
             @Override
             public void onComplete(@NonNull Task<AuthResult> task) {
                 if (!task.isSuccessful()) {
-                    Toast.makeText(getContext(), "Cannot signUp", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getContext(), "Cannot sign up", Toast.LENGTH_SHORT).show();
                 } else {
                     String userUid = Objects.requireNonNull(Objects.requireNonNull(task.getResult()).getUser()).getUid();
-                    saveUserToDatabase(user, userUid);
+                    userViewModel.addUser(user, userUid);
                     Navigation.findNavController(getView()).navigate(R.id.action_signUpFragment_to_feedFragment);
                 }
             }
         });
     }
 
-    private void saveUserToDatabase(User user, String userUid) {
-        user.setUserUid(userUid);
-        user.setAdmin(false);
-        db.collection("users").add(user).addOnFailureListener(new OnFailureListener() {
-            @Override
-            public void onFailure(@NonNull Exception e) {
-                Toast.makeText(getContext(), "Cannot save user", Toast.LENGTH_SHORT).show();
-            }
-        });
-    }
 }
