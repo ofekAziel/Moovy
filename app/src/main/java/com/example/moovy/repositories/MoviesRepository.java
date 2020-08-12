@@ -1,9 +1,14 @@
 package com.example.moovy.repositories;
 
+import android.os.AsyncTask;
+
 import androidx.annotation.Nullable;
+import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
+import com.example.moovy.models.AppLocalDatabase;
 import com.example.moovy.models.Movie;
+import com.example.moovy.models.MovieDao;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -17,6 +22,7 @@ public class MoviesRepository {
 
     private static MoviesRepository instance;
     private FirebaseFirestore db = FirebaseFirestore.getInstance();
+    private MovieDao movieDao = AppLocalDatabase.getInstance().movieDao();
     private List<Movie> movies = new ArrayList<>();
 
     public static MoviesRepository getInstance() {
@@ -27,12 +33,28 @@ public class MoviesRepository {
         return instance;
     }
 
-    public MutableLiveData<List<Movie>> getMovies() {
+    public LiveData<List<Movie>> getMovies() {
+//        LiveData<List<Movie>> moviesLiveData = movieDao.getAll();
+//        loadMovies();
+//        return moviesLiveData;
         loadMovies();
         MutableLiveData<List<Movie>> movieData = new MutableLiveData<>();
         movieData.setValue(movies);
         return movieData;
     }
+
+//    private void loadMovies() {
+//        db.collection("movies").get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+//            @Override
+//            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+//                for (DocumentSnapshot document : task.getResult().getDocuments()) {
+//                    Movie movie = document.toObject(Movie.class);
+//                    movie.setId(document.getId());
+//                    new InsertMovieAsyncTask(movieDao).execute(movie);
+//                }
+//            }
+//        });
+//    }
 
     private void loadMovies() {
         db.collection("movies").addSnapshotListener(new EventListener<QuerySnapshot>() {
@@ -64,5 +86,18 @@ public class MoviesRepository {
 
     public void deleteMovie(String movieId) {
         db.collection("movies").document(movieId).delete();
+    }
+
+    private static class InsertMovieAsyncTask extends AsyncTask<Movie, Void, Void> {
+        private MovieDao movieDao;
+
+        private InsertMovieAsyncTask(MovieDao movieDao) {
+            this.movieDao = movieDao;
+        }
+        @Override
+        protected Void doInBackground(Movie... movies) {
+            movieDao.add(movies[0]);
+            return null;
+        }
     }
 }

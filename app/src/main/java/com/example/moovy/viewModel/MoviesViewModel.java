@@ -1,7 +1,6 @@
 package com.example.moovy.viewModel;
 
 import androidx.lifecycle.LiveData;
-import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
 import com.example.moovy.models.Movie;
@@ -12,7 +11,7 @@ import java.util.List;
 public class MoviesViewModel extends ViewModel {
 
     private MoviesRepository moviesRepository;
-    private MutableLiveData<List<Movie>> movies;
+    private LiveData<List<Movie>> movies;
 
     public void init() {
         moviesRepository = MoviesRepository.getInstance();
