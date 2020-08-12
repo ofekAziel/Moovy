@@ -28,10 +28,12 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProviders;
 import androidx.navigation.Navigation;
 
 import com.example.moovy.R;
 import com.example.moovy.models.Movie;
+import com.example.moovy.viewModel.MoviesViewModel;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.firestore.DocumentReference;
@@ -53,7 +55,7 @@ public class UpdateFragment extends Fragment {
     private EditText nameInput, genreInput, directorInput, starringInput, summaryInput;
     private Button updateButton, deleteButton, cancelButton;
     private Movie movie;
-    final FirebaseFirestore db = FirebaseFirestore.getInstance();
+    private MoviesViewModel moviesViewModel;
 
     public UpdateFragment() {
     }
@@ -66,6 +68,8 @@ public class UpdateFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        moviesViewModel = ViewModelProviders.of(this).get(MoviesViewModel.class);
+        moviesViewModel.init();
         Movie selectedMovie = UpdateFragmentArgs.fromBundle(getArguments()).getMovie();
         if(selectedMovie != null)
             this.movie = selectedMovie;
@@ -85,25 +89,13 @@ public class UpdateFragment extends Fragment {
         FirebaseStorage.getInstance().getReference().child("moviePhotos/" + this.movie.getPhotoHash()).delete();
     }
 
-    public void deleteMovie() {
-        deletePhoto();
-        db.collection("movies").document(this.movie.getId()).delete().addOnSuccessListener(new OnSuccessListener<Void>() {
-            @Override
-            public void onSuccess(Void aVoid) {
-                showToast("Movie deleted");
-            }
-        });
-    }
-
     private void deleteButtonClickListener() {
         deleteButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                deleteMovie();
+                deletePhoto();
+                moviesViewModel.deleteMovie(movie);
                 Navigation.findNavController(view).popBackStack(R.id.feedFragment,false);
-                /*Intent mainIntent = new Intent(EditActivity.this, MainActivity.class);
-                mainIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                EditActivity.this.startActivity(mainIntent);*/
             }
         });
     }
@@ -113,7 +105,6 @@ public class UpdateFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 Navigation.findNavController(v).popBackStack(R.id.feedFragment,false);
-                //finish();
             }
         });
     }
@@ -133,11 +124,11 @@ public class UpdateFragment extends Fragment {
             public void onClick(View view) {
                 if(movie.isNewMovie()) {
                     setMovie();
-                    addMovieToDb();
+                    moviesViewModel.addMovie(movie);
                 }
                 else {
                     setMovie();
-                    updateMovieInDb();
+                    moviesViewModel.updateMovie(movie);
                 }
                 addImageToDb();
                 Navigation.findNavController(view).popBackStack(R.id.feedFragment,false);
@@ -163,37 +154,6 @@ public class UpdateFragment extends Fragment {
                 showToast("Failed to upload image");
             }
         });
-    }
-
-    private void updateMovieInDb() {
-        db.collection("movies").document(this.movie.getId()).update(
-                "name", movie.getName(),
-                "genre", movie.getGenre(),
-                "director", movie.getDirector(),
-                "starring", movie.getStarring(),
-                "photoHash", movie.getPhotoHash()).
-                addOnSuccessListener(new OnSuccessListener<Void>() {
-                    @Override
-                    public void onSuccess(Void aVoid) {
-                        showToast("Movie updated");
-                    }
-                });
-    }
-
-    private void addMovieToDb() {
-        db.collection("movies").add(movie)
-                .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
-                    @Override
-                    public void onSuccess(DocumentReference documentReference) {
-                        showToast("Movie added");
-                    }
-                })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        showToast("Failed to add movie");
-                    }
-                });
     }
 
     private void setMovie() {
