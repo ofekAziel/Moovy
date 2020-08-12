@@ -77,7 +77,6 @@ public class DetailsFragment extends Fragment {
         // TODO: get user from room
         //user = (User) getIntent().getSerializableExtra("user");
         movie = DetailsFragmentArgs.fromBundle(getArguments()).getMovie();
-        //user = new User("asd","asd");
         userViewModel = ViewModelProviders.of(this).get(UserViewModel.class);
         userViewModel.init();
         commentsViewModel = ViewModelProviders.of(this).get(CommentsViewModel.class);
@@ -93,7 +92,7 @@ public class DetailsFragment extends Fragment {
     }
 
     private void initRecyclerView() {
-        RecyclerView recyclerView = getView().findViewById(R.id.comments);;
+        RecyclerView recyclerView = getView().findViewById(R.id.comments);
         commentAdapter = new CommentAdapter(getContext(), commentsViewModel.getComments(movie.getId()).getValue());
         recyclerView.setAdapter(commentAdapter);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
@@ -243,6 +242,10 @@ public class DetailsFragment extends Fragment {
         averageRating = getView().findViewById(R.id.averageRating);
         commentInput = getView().findViewById(R.id.commentInput);
         initializeFields();
+
+        if (!userViewModel.getUser().getValue().isAdmin()) {
+            editButton.setVisibility(View.GONE);
+        }
     }
 
     private void setUpScreenAdmin() {

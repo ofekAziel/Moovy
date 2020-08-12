@@ -172,7 +172,7 @@ public class UpdateFragment extends Fragment {
         movie.setPhotoHash(Arrays.hashCode(data) + movie.hashCode());
     }
 
-    private void loadImageFromFile(String fileName)
+    private void loadImageFromFile(int photoHash)
     {
         /*try {
             // TODO: get photo by safe args
@@ -181,6 +181,8 @@ public class UpdateFragment extends Fragment {
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }*/
+        StorageReference imageReference = FirebaseStorage.getInstance().getReference().child("moviePhotos/" + photoHash);
+        GlideApp.with(this).load(imageReference).into(imageView);
     }
 
     private void initFields() {
@@ -199,7 +201,7 @@ public class UpdateFragment extends Fragment {
             directorInput.setText(movie.getDirector());
             starringInput.setText(movie.getStarring());
             summaryInput.setText(movie.getSummary());
-            loadImageFromFile(String.valueOf(movie.getPhotoHash()));
+            loadImageFromFile(movie.getPhotoHash());
         }
     }
 
