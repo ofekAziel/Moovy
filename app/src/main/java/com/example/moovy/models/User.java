@@ -1,10 +1,20 @@
 package com.example.moovy.models;
 
+import androidx.room.Entity;
+import androidx.room.PrimaryKey;
+
 import java.io.Serializable;
 
+@Entity(tableName = "users_table")
 public class User implements Serializable {
 
-    private String firstName, lastName, userUid;
+    @PrimaryKey
+    private String userUid;
+
+    private String firstName;
+
+    private String lastName;
+
     private boolean isAdmin;
 
     public User(String firstName, String lastName) {

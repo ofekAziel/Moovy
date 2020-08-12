@@ -1,20 +1,29 @@
 package com.example.moovy.models;
 
+import androidx.room.Entity;
+import androidx.room.PrimaryKey;
+
 import java.util.Date;
 
+@Entity(tableName = "comments_table")
 public class Comment {
-    private String content;
-    private User user;
-    private Date date;
+
+    @PrimaryKey
     private String id;
 
-    public Comment() {
-    }
+    private String content;
+
+    private User user;
+
+    private Date date;
 
     public Comment(String content, User user, Date date) {
         this.date = date;
         this.content = content;
         this.user = user;
+    }
+
+    public Comment() {
     }
 
     public String getId() {
