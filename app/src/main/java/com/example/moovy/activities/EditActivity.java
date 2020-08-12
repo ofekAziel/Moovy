@@ -27,7 +27,6 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.lifecycle.ViewModelProviders;
 
-import com.example.moovy.MoviesDataLoadListener;
 import com.example.moovy.R;
 import com.example.moovy.models.Movie;
 import com.example.moovy.viewModel.MoviesViewModel;
@@ -41,7 +40,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.Arrays;
 
-public class EditActivity extends AppCompatActivity implements MoviesDataLoadListener {
+public class EditActivity extends AppCompatActivity {
 
     private ImageView imageView;
     private EditText nameInput, genreInput, directorInput, starringInput, summaryInput;
@@ -53,7 +52,7 @@ public class EditActivity extends AppCompatActivity implements MoviesDataLoadLis
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         moviesViewModel = ViewModelProviders.of(this).get(MoviesViewModel.class);
-        moviesViewModel.init(EditActivity.this);
+        moviesViewModel.init();
         Movie selectedMovie = (Movie) getIntent().getSerializableExtra("selectedMovie");
         if(selectedMovie != null)
             this.movie = selectedMovie;
@@ -64,10 +63,6 @@ public class EditActivity extends AppCompatActivity implements MoviesDataLoadLis
         imageViewClickListener();
         updateButtonClickListener();
         deleteButtonClickListener();
-    }
-
-    @Override
-    public void onMoviesLoad() {
     }
 
     public void deletePhoto() {
