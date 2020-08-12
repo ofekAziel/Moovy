@@ -1,6 +1,5 @@
 package com.example.moovy.activities;
 
-import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -18,20 +17,17 @@ import androidx.lifecycle.ViewModelProviders;
 import androidx.navigation.Navigation;
 
 import com.example.moovy.R;
-import com.example.moovy.UserDataLoadListener;
 import com.example.moovy.models.User;
 import com.example.moovy.services.ValidationService;
 import com.example.moovy.viewModel.UserViewModel;
 import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.Objects;
 
-public class SignUpFragment extends Fragment implements UserDataLoadListener {
+public class SignUpFragment extends Fragment {
 
     private EditText firstName, lastName, username, password;
     private Button signUpButton;
@@ -57,12 +53,8 @@ public class SignUpFragment extends Fragment implements UserDataLoadListener {
         password = getView().findViewById(R.id.password);
         signUpButton = getView().findViewById(R.id.signUp);
         userViewModel = ViewModelProviders.of(this).get(UserViewModel.class);
-        userViewModel.init(getActivity());
+        userViewModel.init();
         signUpButtonClickListener();
-    }
-
-    @Override
-    public void onUserLoad() {
     }
 
     private void signUpButtonClickListener() {
