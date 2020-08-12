@@ -1,7 +1,5 @@
 package com.example.moovy.viewModel;
 
-import android.content.Context;
-
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
@@ -14,8 +12,8 @@ public class UserViewModel extends ViewModel {
     private UserRepository userRepository;
     private MutableLiveData<User> user;
 
-    public void init(Context context) {
-        userRepository = UserRepository.getInstance(context);
+    public void init() {
+        userRepository = UserRepository.getInstance();
 
         if (user == null) {
             user = userRepository.getUser();

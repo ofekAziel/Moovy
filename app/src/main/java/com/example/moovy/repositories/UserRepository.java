@@ -1,10 +1,7 @@
 package com.example.moovy.repositories;
 
-import android.content.Context;
-
 import androidx.lifecycle.MutableLiveData;
 
-import com.example.moovy.UserDataLoadListener;
 import com.example.moovy.models.User;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
@@ -18,17 +15,12 @@ public class UserRepository {
     private FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
     private User user;
     private MutableLiveData<User> userData = new MutableLiveData<>();
-    private static Context mContext;
-    private static UserDataLoadListener userDataLoadListener;
 
-    public static UserRepository getInstance(Context context) {
-        mContext = context;
-
+    public static UserRepository getInstance() {
         if (instance == null) {
             instance = new UserRepository();
         }
 
-        userDataLoadListener = (UserDataLoadListener) mContext;
         return instance;
     }
 
@@ -44,7 +36,6 @@ public class UserRepository {
             public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
                 user = queryDocumentSnapshots.getDocuments().get(0).toObject(User.class);
                 userData.setValue(user);
-                userDataLoadListener.onUserLoad();
             }
         });
     }
