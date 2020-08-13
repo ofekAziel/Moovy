@@ -45,7 +45,7 @@ public class MainActivity extends AppCompatActivity {
         userViewModel = ViewModelProviders.of(this).get(UserViewModel.class);
         userViewModel.init();
         addMoviesObservable();
-        addUserObservable();
+//        addUserObservable();
         setMovieAdapter();
     }
 
@@ -58,22 +58,22 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    private void addUserObservable() {
-        userViewModel.getUser().observe(this, new Observer<User>() {
-            @Override
-            public void onChanged(User user) {
-                setUpScreenAdmin();
-            }
-        });
-    }
+//    private void addUserObservable() {
+//        userViewModel.getUser().observe(this, new Observer<User>() {
+//            @Override
+//            public void onChanged(User user) {
+//                setUpScreenAdmin();
+//            }
+//        });
+//    }
 
     private void setUpScreenAdmin() {
-        String userDisplayName = "Hello " + userViewModel.getUser().getValue().getFullName();
-        currentUser.setText(userDisplayName);
+//        String userDisplayName = "Hello " + userViewModel.getUser().getValue().getFullName();
+//        currentUser.setText(userDisplayName);
 
-        if (!userViewModel.getUser().getValue().isAdmin()) {
-            addMovieButton.setVisibility(View.GONE);
-        }
+//        if (!userViewModel.getUser().getValue().isAdmin()) {
+//            addMovieButton.setVisibility(View.GONE);
+//        }
     }
 
     private void addMovieButtonClickListener() {

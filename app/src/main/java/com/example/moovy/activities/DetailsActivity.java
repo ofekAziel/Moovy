@@ -78,7 +78,7 @@ public class DetailsActivity extends AppCompatActivity {
         downloadMoviePhoto(getApplicationContext(), movie.getPhotoHash());
         commentInput.getEditText().addTextChangedListener(commentTextWatcher);
         addCommentsObservable();
-        addUserObservable();
+//        addUserObservable();
         initRecyclerView();
     }
 
@@ -89,15 +89,15 @@ public class DetailsActivity extends AppCompatActivity {
         submitButtonClickListener();
     }
 
-    private void addUserObservable() {
-        userViewModel.getUser().observe(this, new Observer<User>() {
-            @Override
-            public void onChanged(User user) {
-                currentUser = user;
-                loadAfterUserLoad();
-            }
-        });
-    }
+//    private void addUserObservable() {
+//        userViewModel.getUser().observe(this, new Observer<User>() {
+//            @Override
+//            public void onChanged(User user) {
+//                currentUser = user;
+//                loadAfterUserLoad();
+//            }
+//        });
+//    }
 
     private void addCommentsObservable() {
         commentsViewModel.getComments(movie.getId()).observe(this, new Observer<List<Comment>>() {
