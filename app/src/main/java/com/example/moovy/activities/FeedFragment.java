@@ -72,9 +72,9 @@ public class FeedFragment extends Fragment {
     }
 
     private void addUserObservable() {
-        userViewModel.getUser().observe(getViewLifecycleOwner(), new Observer<User>() {
+        userViewModel.getUser().observe(getViewLifecycleOwner(), new Observer<List<User>>() {
             @Override
-            public void onChanged(User user) {
+            public void onChanged(List<User> users) {
                 setUpScreenAdmin();
             }
         });
@@ -86,10 +86,10 @@ public class FeedFragment extends Fragment {
     }
 
     private void setUpScreenAdmin() {
-        String userDisplayName = "Hello " + userViewModel.getUser().getValue().getFullName();
+        String userDisplayName = "Hello " + userViewModel.getUser().getValue().get(0).getFullName();
         currentUser.setText(userDisplayName);
 
-        if (!userViewModel.getUser().getValue().isAdmin()) {
+        if (!userViewModel.getUser().getValue().get(0).isAdmin()) {
             addMovieButton.setVisibility(View.GONE);
         }
     }
