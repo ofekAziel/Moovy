@@ -1,7 +1,5 @@
 package com.example.moovy.viewModel;
 
-import android.content.Context;
-
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
@@ -14,10 +12,10 @@ import java.util.List;
 public class MoviesViewModel extends ViewModel {
 
     private MoviesRepository moviesRepository;
-    private MutableLiveData<List<Movie>> movies;
+    private LiveData<List<Movie>> movies;
 
-    public void init(Context context) {
-        moviesRepository = MoviesRepository.getInstance(context);
+    public void init() {
+        moviesRepository = MoviesRepository.getInstance();
 
         if (movies == null) {
             movies = moviesRepository.getMovies();
@@ -42,7 +40,7 @@ public class MoviesViewModel extends ViewModel {
 
     public void deleteMovie(Movie movie) {
         if (movies != null) {
-            moviesRepository.deleteMovie(movie.getId());
+            moviesRepository.deleteMovie(movie);
         }
     }
 }

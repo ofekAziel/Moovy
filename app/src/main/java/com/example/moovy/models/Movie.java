@@ -1,15 +1,35 @@
 package com.example.moovy.models;
 
+import androidx.annotation.NonNull;
+import androidx.room.Entity;
+import androidx.room.Ignore;
+import androidx.room.PrimaryKey;
+
 import java.io.Serializable;
 
+@Entity(tableName = "movies_table")
 public class Movie implements Serializable {
 
+    @PrimaryKey
+    @NonNull
     private String id;
-    private String name, genre, director, starring, summary;
+
+    private String name;
+
+    private String genre;
+
+    private String director;
+
+    private String starring;
+
+    private String summary;
+
     private int photoHash;
+
     private float averageRating;
 
-    public Movie(String name, String genre, String director, String starring, String summary, int photoHash, float averageRating) {
+    public Movie(@NonNull String id, String name, String genre, String director, String starring, String summary, int photoHash, float averageRating) {
+        this.id = id;
         this.name = name;
         this.genre = genre;
         this.director = director;
@@ -19,6 +39,7 @@ public class Movie implements Serializable {
         this.averageRating = averageRating;
     }
 
+    @Ignore
     public Movie() {
         this.id = "";
         this.name = "";
@@ -34,11 +55,12 @@ public class Movie implements Serializable {
         return this.id.equals("");
     }
 
+    @NonNull
     public String getId() {
         return this.id;
     }
 
-    public void setId(String id) {
+    public void setId(@NonNull String id) {
         this.id = id;
     }
 

@@ -13,9 +13,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProviders;
 
-import com.example.moovy.MoviesDataLoadListener;
 import com.example.moovy.R;
-import com.example.moovy.UserDataLoadListener;
 import com.example.moovy.adapters.MoviesAdapter;
 import com.example.moovy.models.Movie;
 import com.example.moovy.models.User;
@@ -24,7 +22,7 @@ import com.example.moovy.viewModel.UserViewModel;
 
 import java.util.List;
 
-public class MainActivity extends AppCompatActivity implements MoviesDataLoadListener, UserDataLoadListener {
+public class MainActivity extends AppCompatActivity {
 
     private GridView movieGrid;
     private TextView currentUser;
@@ -43,14 +41,15 @@ public class MainActivity extends AppCompatActivity implements MoviesDataLoadLis
         currentUser = findViewById(R.id.currentUser);
         addMovieButtonClickListener();
         moviesViewModel = ViewModelProviders.of(this).get(MoviesViewModel.class);
-        moviesViewModel.init(MainActivity.this);
+        moviesViewModel.init();
         userViewModel = ViewModelProviders.of(this).get(UserViewModel.class);
-        userViewModel.init(MainActivity.this);
+        userViewModel.init();
+        addMoviesObservable();
+//        addUserObservable();
         setMovieAdapter();
     }
 
-    @Override
-    public void onMoviesLoad() {
+    private void addMoviesObservable() {
         moviesViewModel.getMovies().observe(this, new Observer<List<Movie>>() {
             @Override
             public void onChanged(List<Movie> movies) {
@@ -59,23 +58,22 @@ public class MainActivity extends AppCompatActivity implements MoviesDataLoadLis
         });
     }
 
-    @Override
-    public void onUserLoad() {
-        userViewModel.getUser().observe(this, new Observer<User>() {
-            @Override
-            public void onChanged(User user) {
-                setUpScreenAdmin();
-            }
-        });
-    }
+//    private void addUserObservable() {
+//        userViewModel.getUser().observe(this, new Observer<User>() {
+//            @Override
+//            public void onChanged(User user) {
+//                setUpScreenAdmin();
+//            }
+//        });
+//    }
 
     private void setUpScreenAdmin() {
-        String userDisplayName = "Hello " + userViewModel.getUser().getValue().getFullName();
-        currentUser.setText(userDisplayName);
+//        String userDisplayName = "Hello " + userViewModel.getUser().getValue().getFullName();
+//        currentUser.setText(userDisplayName);
 
-        if (!userViewModel.getUser().getValue().isAdmin()) {
-            addMovieButton.setVisibility(View.GONE);
-        }
+//        if (!userViewModel.getUser().getValue().isAdmin()) {
+//            addMovieButton.setVisibility(View.GONE);
+//        }
     }
 
     private void addMovieButtonClickListener() {

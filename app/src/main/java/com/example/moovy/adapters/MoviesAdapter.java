@@ -1,7 +1,5 @@
 package com.example.moovy.adapters;
 
-import android.content.Context;
-import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -10,9 +8,11 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.navigation.NavController;
+import androidx.navigation.Navigation;
 
 import com.example.moovy.R;
-import com.example.moovy.activities.DetailsActivity;
+import com.example.moovy.activities.FeedFragmentDirections;
 import com.example.moovy.activities.GlideApp;
 import com.example.moovy.models.Movie;
 import com.google.firebase.storage.FirebaseStorage;
@@ -74,10 +74,10 @@ public class MoviesAdapter extends BaseAdapter {
         movieCard.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Context context = v.getContext();
-                Intent mainIntent = new Intent(context, DetailsActivity.class);
-                mainIntent.putExtra("selectedMovie", selectedMovie);
-                context.startActivity(mainIntent);
+                NavController navCtrl = Navigation.findNavController(v);
+                FeedFragmentDirections.ActionFeedFragmentToDetailsFragment directions
+                        = FeedFragmentDirections.actionFeedFragmentToDetailsFragment (selectedMovie);
+                navCtrl.navigate(directions);
             }
         });
     }

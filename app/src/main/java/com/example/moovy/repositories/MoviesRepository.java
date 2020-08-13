@@ -1,16 +1,17 @@
 package com.example.moovy.repositories;
 
-import android.content.Context;
+import android.os.AsyncTask;
 
-import androidx.annotation.Nullable;
-import androidx.lifecycle.MutableLiveData;
+import androidx.annotation.NonNull;
+import androidx.lifecycle.LiveData;
 
-import com.example.moovy.MoviesDataLoadListener;
+import com.example.moovy.models.AppLocalDatabase;
 import com.example.moovy.models.Movie;
+import com.example.moovy.models.MovieDao;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
@@ -20,49 +21,50 @@ public class MoviesRepository {
 
     private static MoviesRepository instance;
     private FirebaseFirestore db = FirebaseFirestore.getInstance();
-    private List<Movie> movies = new ArrayList<>();
-    private static Context mContext;
-    private static MoviesDataLoadListener moviesDataLoadListener;
+    private MovieDao movieDao = AppLocalDatabase.getInstance().movieDao();
 
-    public static MoviesRepository getInstance(Context context) {
-        mContext = context;
-
+    public static MoviesRepository getInstance() {
         if (instance == null) {
             instance = new MoviesRepository();
         }
 
-        moviesDataLoadListener = (MoviesDataLoadListener) mContext;
         return instance;
     }
 
-    public MutableLiveData<List<Movie>> getMovies() {
-        loadMovies();
-        MutableLiveData<List<Movie>> movieData = new MutableLiveData<>();
-        movieData.setValue(movies);
-        return movieData;
+    public LiveData<List<Movie>> getMovies() {
+        LiveData<List<Movie>> moviesLiveData = movieDao.getAll();
+        loadMoviesFromFirebase();
+        return moviesLiveData;
     }
 
-    private void loadMovies() {
-        db.collection("movies").addSnapshotListener(new EventListener<QuerySnapshot>() {
+    private void loadMoviesFromFirebase() {
+        db.collection("movies").get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
             @Override
-            public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots, @Nullable FirebaseFirestoreException e) {
-                movies.clear();
-                for (DocumentSnapshot document : queryDocumentSnapshots.getDocuments()) {
+            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                for (DocumentSnapshot document : task.getResult().getDocuments()) {
                     Movie movie = document.toObject(Movie.class);
                     movie.setId(document.getId());
-                    movies.add(movie);
+                    new AddMovieAsyncTask(movieDao).execute(movie);
                 }
-
-                moviesDataLoadListener.onMoviesLoad();
             }
         });
     }
 
     public void addMovie(Movie movie) {
+        new AddMovieAsyncTask(movieDao).execute(movie);
+        addMovieToFirebase(movie);
+    }
+
+    private void addMovieToFirebase(Movie movie) {
         db.collection("movies").add(movie);
     }
 
     public void updateMovie(Movie movie) {
+        new UpdateMovieAsyncTask(movieDao).execute(movie);
+        updateMovieInFirebase(movie);
+    }
+
+    private void updateMovieInFirebase(Movie movie) {
         db.collection("movies").document(movie.getId()).update(
                 "name", movie.getName(),
                 "genre", movie.getGenre(),
@@ -72,7 +74,51 @@ public class MoviesRepository {
                 "summary", movie.getSummary());
     }
 
-    public void deleteMovie(String movieId) {
-        db.collection("movies").document(movieId).delete();
+    public void deleteMovie(Movie movie) {
+        new DeleteMovieAsyncTask(movieDao).execute(movie);
+        deleteMovieFromFirebase(movie);
+    }
+
+    private void deleteMovieFromFirebase(Movie movie) {
+        db.collection("movies").document(movie.getId()).delete();
+    }
+
+    private static class UpdateMovieAsyncTask extends AsyncTask<Movie, Void, Void> {
+        private MovieDao movieDao;
+
+        private UpdateMovieAsyncTask(MovieDao movieDao) {
+            this.movieDao = movieDao;
+        }
+        @Override
+        protected Void doInBackground(Movie... movies) {
+            movieDao.update(movies[0]);
+            return null;
+        }
+    }
+
+    private static class AddMovieAsyncTask extends AsyncTask<Movie, Void, Void> {
+        private MovieDao movieDao;
+
+        private AddMovieAsyncTask(MovieDao movieDao) {
+            this.movieDao = movieDao;
+        }
+        @Override
+        protected Void doInBackground(Movie... movies) {
+            movieDao.add(movies[0]);
+            return null;
+        }
+    }
+
+    private static class DeleteMovieAsyncTask extends AsyncTask<Movie, Void, Void> {
+        private MovieDao movieDao;
+
+        private DeleteMovieAsyncTask(MovieDao movieDao) {
+            this.movieDao = movieDao;
+        }
+        @Override
+        protected Void doInBackground(Movie... movies) {
+            movieDao.delete(movies[0]);
+            return null;
+        }
     }
 }

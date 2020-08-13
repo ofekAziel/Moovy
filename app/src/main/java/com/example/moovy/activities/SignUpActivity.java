@@ -14,7 +14,6 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.ViewModelProviders;
 
 import com.example.moovy.R;
-import com.example.moovy.UserDataLoadListener;
 import com.example.moovy.models.User;
 import com.example.moovy.services.ValidationService;
 import com.example.moovy.viewModel.UserViewModel;
@@ -25,7 +24,7 @@ import com.google.firebase.auth.FirebaseAuth;
 
 import java.util.Objects;
 
-public class SignUpActivity extends AppCompatActivity implements UserDataLoadListener {
+public class SignUpActivity extends AppCompatActivity {
 
     private EditText firstName, lastName, username, password;
     private Button signUpButton;
@@ -43,12 +42,8 @@ public class SignUpActivity extends AppCompatActivity implements UserDataLoadLis
         password = findViewById(R.id.password);
         signUpButton = findViewById(R.id.signUp);
         userViewModel = ViewModelProviders.of(this).get(UserViewModel.class);
-        userViewModel.init(SignUpActivity.this);
+        userViewModel.init();
         signUpButtonClickListener();
-    }
-
-    @Override
-    public void onUserLoad() {
     }
 
     private void signUpButtonClickListener() {

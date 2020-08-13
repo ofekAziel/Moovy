@@ -1,11 +1,18 @@
 package com.example.moovy.models;
 
+import androidx.room.Entity;
+import androidx.room.PrimaryKey;
+
 import java.io.Serializable;
 
+@Entity(tableName = "user_ratings_table")
 public class UserRating implements Serializable {
 
+    @PrimaryKey
     private String id;
+
     private User user;
+
     private float rating;
 
     public UserRating(String id, User user, float rating) {

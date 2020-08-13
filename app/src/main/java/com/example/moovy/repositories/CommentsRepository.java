@@ -1,11 +1,8 @@
 package com.example.moovy.repositories;
 
-import android.content.Context;
-
 import androidx.annotation.Nullable;
 import androidx.lifecycle.MutableLiveData;
 
-import com.example.moovy.CommentsDataLoadListener;
 import com.example.moovy.models.Comment;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
@@ -21,17 +18,12 @@ public class CommentsRepository {
     private static CommentsRepository instance;
     private FirebaseFirestore db = FirebaseFirestore.getInstance();
     private List<Comment> comments = new ArrayList<>();
-    private static Context mContext;
-    private static CommentsDataLoadListener commentsDataLoadListener;
 
-    public static CommentsRepository getInstance(Context context) {
-        mContext = context;
-
+    public static CommentsRepository getInstance() {
         if (instance == null) {
             instance = new CommentsRepository();
         }
 
-        commentsDataLoadListener = (CommentsDataLoadListener) mContext;
         return instance;
     }
 
@@ -53,8 +45,6 @@ public class CommentsRepository {
                     comment.setId(document.getId());
                     comments.add(comment);
                 }
-
-                commentsDataLoadListener.onCommentsLoad();
             }
         });
     }

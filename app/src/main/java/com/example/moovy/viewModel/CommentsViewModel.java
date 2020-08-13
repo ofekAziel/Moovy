@@ -1,7 +1,5 @@
 package com.example.moovy.viewModel;
 
-import android.content.Context;
-
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
@@ -16,8 +14,8 @@ public class CommentsViewModel extends ViewModel {
     private CommentsRepository commentsRepository;
     private MutableLiveData<List<Comment>> comments;
 
-    public void init(Context context) {
-        commentsRepository = CommentsRepository.getInstance(context);
+    public void init() {
+        commentsRepository = CommentsRepository.getInstance();
     }
 
     public LiveData<List<Comment>> getComments(String movieId) {

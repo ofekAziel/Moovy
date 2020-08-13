@@ -25,9 +25,7 @@ import androidx.lifecycle.ViewModelProviders;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.moovy.CommentsDataLoadListener;
 import com.example.moovy.R;
-import com.example.moovy.UserDataLoadListener;
 import com.example.moovy.adapters.CommentAdapter;
 import com.example.moovy.models.Comment;
 import com.example.moovy.models.Movie;
@@ -48,7 +46,7 @@ import java.io.FileOutputStream;
 import java.util.Date;
 import java.util.List;
 
-public class DetailsActivity extends AppCompatActivity implements UserDataLoadListener, CommentsDataLoadListener {
+public class DetailsActivity extends AppCompatActivity {
 
     private FirebaseFirestore db = FirebaseFirestore.getInstance();
     private Movie movie;
@@ -71,14 +69,16 @@ public class DetailsActivity extends AppCompatActivity implements UserDataLoadLi
         setContentView(R.layout.activity_details);
         movie = (Movie) getIntent().getSerializableExtra("selectedMovie");
         userViewModel = ViewModelProviders.of(this).get(UserViewModel.class);
-        userViewModel.init(DetailsActivity.this);
+        userViewModel.init();
         commentsViewModel = ViewModelProviders.of(this).get(CommentsViewModel.class);
-        commentsViewModel.init(DetailsActivity.this);
+        commentsViewModel.init();
         setUpScreen();
         editButtonClickListener();
         returnButtonClickListener();
         downloadMoviePhoto(getApplicationContext(), movie.getPhotoHash());
         commentInput.getEditText().addTextChangedListener(commentTextWatcher);
+        addCommentsObservable();
+//        addUserObservable();
         initRecyclerView();
     }
 
@@ -89,19 +89,17 @@ public class DetailsActivity extends AppCompatActivity implements UserDataLoadLi
         submitButtonClickListener();
     }
 
-    @Override
-    public void onUserLoad() {
-        userViewModel.getUser().observe(this, new Observer<User>() {
-            @Override
-            public void onChanged(User user) {
-                currentUser = user;
-                loadAfterUserLoad();
-            }
-        });
-    }
+//    private void addUserObservable() {
+//        userViewModel.getUser().observe(this, new Observer<User>() {
+//            @Override
+//            public void onChanged(User user) {
+//                currentUser = user;
+//                loadAfterUserLoad();
+//            }
+//        });
+//    }
 
-    @Override
-    public void onCommentsLoad() {
+    private void addCommentsObservable() {
         commentsViewModel.getComments(movie.getId()).observe(this, new Observer<List<Comment>>() {
             @Override
             public void onChanged(List<Comment> comments) {

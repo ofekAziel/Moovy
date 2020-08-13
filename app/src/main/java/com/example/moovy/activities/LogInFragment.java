@@ -1,5 +1,6 @@
 package com.example.moovy.activities;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -38,17 +39,15 @@ public class LogInFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        //getView().setContentView(R.layout.activity_login);
         username = getView().findViewById(R.id.username);
         password = getView().findViewById(R.id.password);
         loginButton = getView().findViewById(R.id.login);
         signUpButton = getView().findViewById(R.id.register);
         loginButtonClickListener();
         signUpButtonClickListener();
-
     }
 
-    void loginButtonClickListener() {
+    private void loginButtonClickListener() {
         loginButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -73,7 +72,7 @@ public class LogInFragment extends Fragment {
             @Override
             public void onComplete(@NonNull Task<AuthResult> task) {
                 if (!task.isSuccessful()) {
-                    Toast.makeText(getContext(), "Cannot login", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getActivity(), "Cannot login", Toast.LENGTH_SHORT).show();
                 } else {
                     Navigation.findNavController(getView()).navigate(R.id.action_logInFragment_to_feedFragment);
                 }
