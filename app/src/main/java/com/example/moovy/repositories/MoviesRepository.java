@@ -2,6 +2,7 @@ package com.example.moovy.repositories;
 
 import android.os.AsyncTask;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
@@ -9,6 +10,8 @@ import androidx.lifecycle.MutableLiveData;
 import com.example.moovy.models.AppLocalDatabase;
 import com.example.moovy.models.Movie;
 import com.example.moovy.models.MovieDao;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -34,37 +37,19 @@ public class MoviesRepository {
     }
 
     public LiveData<List<Movie>> getMovies() {
-//        LiveData<List<Movie>> moviesLiveData = movieDao.getAll();
-//        loadMovies();
-//        return moviesLiveData;
+        LiveData<List<Movie>> moviesLiveData = movieDao.getAll();
         loadMovies();
-        MutableLiveData<List<Movie>> movieData = new MutableLiveData<>();
-        movieData.setValue(movies);
-        return movieData;
+        return moviesLiveData;
     }
 
-//    private void loadMovies() {
-//        db.collection("movies").get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-//            @Override
-//            public void onComplete(@NonNull Task<QuerySnapshot> task) {
-//                for (DocumentSnapshot document : task.getResult().getDocuments()) {
-//                    Movie movie = document.toObject(Movie.class);
-//                    movie.setId(document.getId());
-//                    new InsertMovieAsyncTask(movieDao).execute(movie);
-//                }
-//            }
-//        });
-//    }
-
     private void loadMovies() {
-        db.collection("movies").addSnapshotListener(new EventListener<QuerySnapshot>() {
+        db.collection("movies").get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
             @Override
-            public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots, @Nullable FirebaseFirestoreException e) {
-                movies.clear();
-                for (DocumentSnapshot document : queryDocumentSnapshots.getDocuments()) {
+            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                for (DocumentSnapshot document : task.getResult().getDocuments()) {
                     Movie movie = document.toObject(Movie.class);
                     movie.setId(document.getId());
-                    movies.add(movie);
+                    new InsertMovieAsyncTask(movieDao).execute(movie);
                 }
             }
         });

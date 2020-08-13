@@ -1,7 +1,5 @@
 package com.example.moovy.adapters;
 
-import android.content.Context;
-import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,7 +12,6 @@ import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 
 import com.example.moovy.R;
-import com.example.moovy.activities.DetailsActivity;
 import com.example.moovy.activities.FeedFragmentDirections;
 import com.example.moovy.activities.GlideApp;
 import com.example.moovy.models.Movie;

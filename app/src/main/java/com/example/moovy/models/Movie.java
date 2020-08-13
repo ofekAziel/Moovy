@@ -2,6 +2,7 @@ package com.example.moovy.models;
 
 import androidx.annotation.NonNull;
 import androidx.room.Entity;
+import androidx.room.Ignore;
 import androidx.room.PrimaryKey;
 
 import java.io.Serializable;
@@ -38,6 +39,7 @@ public class Movie implements Serializable {
         this.averageRating = averageRating;
     }
 
+    @Ignore
     public Movie() {
         this.id = "";
         this.name = "";

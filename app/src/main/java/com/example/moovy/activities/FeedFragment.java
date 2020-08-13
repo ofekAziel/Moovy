@@ -25,6 +25,7 @@ import com.example.moovy.models.User;
 import com.example.moovy.viewModel.MoviesViewModel;
 import com.example.moovy.viewModel.UserViewModel;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class FeedFragment extends Fragment {
@@ -59,16 +60,13 @@ public class FeedFragment extends Fragment {
         userViewModel.init();
         addMoviesObservable();
         addUserObservable();
-        setMovieAdapter();
     }
-
-
 
     private void addMoviesObservable() {
         moviesViewModel.getMovies().observe(getViewLifecycleOwner(), new Observer<List<Movie>>() {
             @Override
             public void onChanged(List<Movie> movies) {
-                moviesAdapter.notifyDataSetChanged();
+                setMovieAdapter();
             }
         });
     }
@@ -80,6 +78,11 @@ public class FeedFragment extends Fragment {
                 setUpScreenAdmin();
             }
         });
+    }
+
+    private void setMovieAdapter() {
+        moviesAdapter = new MoviesAdapter(moviesViewModel.getMovies().getValue());
+        movieGrid.setAdapter(moviesAdapter);
     }
 
     private void setUpScreenAdmin() {
@@ -101,10 +104,5 @@ public class FeedFragment extends Fragment {
                 navCtrl.navigate(directions);
             }
         });
-    }
-
-    private void setMovieAdapter() {
-        moviesAdapter = new MoviesAdapter(moviesViewModel.getMovies().getValue());
-        movieGrid.setAdapter(moviesAdapter);
     }
 }
