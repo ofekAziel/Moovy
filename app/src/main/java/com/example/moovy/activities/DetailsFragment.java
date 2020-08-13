@@ -79,6 +79,7 @@ public class DetailsFragment extends Fragment {
         movie = DetailsFragmentArgs.fromBundle(getArguments()).getMovie();
         userViewModel = ViewModelProviders.of(this).get(UserViewModel.class);
         userViewModel.init();
+        addUserObservable();
         commentsViewModel = ViewModelProviders.of(this).get(CommentsViewModel.class);
         commentsViewModel.init();
         setUpScreen();
@@ -86,8 +87,6 @@ public class DetailsFragment extends Fragment {
         returnButtonClickListener();
         downloadMoviePhoto(getActivity().getApplicationContext(), movie.getPhotoHash());
         commentInput.getEditText().addTextChangedListener(commentTextWatcher);
-        addCommentsObservable();
-        addUserObservable();
         initRecyclerView();
     }
 
@@ -106,10 +105,10 @@ public class DetailsFragment extends Fragment {
     }
 
     private void addUserObservable() {
-        userViewModel.getUser().observe(getViewLifecycleOwner(), new Observer<User>() {
+        userViewModel.getUser().observe(getViewLifecycleOwner(), new Observer<List<User>>() {
             @Override
-            public void onChanged(User user) {
-                currentUser = user;
+            public void onChanged(List<User> users) {
+                currentUser = users.get(0);
                 loadAfterUserLoad();
             }
         });
@@ -242,17 +241,12 @@ public class DetailsFragment extends Fragment {
         averageRating = getView().findViewById(R.id.averageRating);
         commentInput = getView().findViewById(R.id.commentInput);
         initializeFields();
-
-        if (!userViewModel.getUser().getValue().isAdmin()) {
-            editButton.setVisibility(View.GONE);
-        }
     }
 
     private void setUpScreenAdmin() {
-        // TODO: uncomment when getting user
-        /*if (!user.isAdmin()) {
+        if (!currentUser.isAdmin()) {
             editButton.setVisibility(View.GONE);
-        }*/
+        }
     }
 
     private void initializeFields() {
