@@ -40,7 +40,7 @@ public class MoviesViewModel extends ViewModel {
 
     public void deleteMovie(Movie movie) {
         if (movies != null) {
-            moviesRepository.deleteMovie(movie.getId());
+            moviesRepository.deleteMovie(movie);
         }
     }
 }
