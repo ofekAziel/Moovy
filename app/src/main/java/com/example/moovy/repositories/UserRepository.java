@@ -43,7 +43,6 @@ public class UserRepository {
             public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
                 if (!queryDocumentSnapshots.getDocuments().isEmpty()) {
                     user = queryDocumentSnapshots.getDocuments().get(0).toObject(User.class);
-                    new AddUserAsyncTask(userDao).execute(user);
                 }
             }
         });
