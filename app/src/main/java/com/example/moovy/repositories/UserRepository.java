@@ -3,11 +3,8 @@ package com.example.moovy.repositories;
 import android.os.AsyncTask;
 
 import androidx.lifecycle.LiveData;
-import androidx.lifecycle.MutableLiveData;
 
 import com.example.moovy.models.AppLocalDatabase;
-import com.example.moovy.models.Movie;
-import com.example.moovy.models.MovieDao;
 import com.example.moovy.models.User;
 import com.example.moovy.models.UserDao;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -24,7 +21,6 @@ public class UserRepository {
     private FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
     private UserDao userDao = AppLocalDatabase.getInstance().userDao();
     private User user;
-    private MutableLiveData<User> userData = new MutableLiveData<>();
 
     public static UserRepository getInstance() {
         if (instance == null) {
@@ -47,7 +43,7 @@ public class UserRepository {
             public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
                 if (!queryDocumentSnapshots.getDocuments().isEmpty()) {
                     user = queryDocumentSnapshots.getDocuments().get(0).toObject(User.class);
-                    userData.setValue(user);
+                    new AddUserAsyncTask(userDao).execute(user);
                 }
             }
         });
