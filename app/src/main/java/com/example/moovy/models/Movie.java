@@ -26,9 +26,7 @@ public class Movie implements Serializable {
 
     private int photoHash;
 
-    private float averageRating;
-
-    public Movie(@NonNull String id, String name, String genre, String director, String starring, String summary, int photoHash, float averageRating) {
+    public Movie(@NonNull String id, String name, String genre, String director, String starring, String summary, int photoHash) {
         this.id = id;
         this.name = name;
         this.genre = genre;
@@ -36,7 +34,6 @@ public class Movie implements Serializable {
         this.starring = starring;
         this.summary = summary;
         this.photoHash = photoHash;
-        this.averageRating = averageRating;
     }
 
     @Ignore
@@ -48,7 +45,6 @@ public class Movie implements Serializable {
         this.starring = "";
         this.summary = "";
         this.photoHash = 0;
-        this.averageRating = (float) 0.0;
     }
 
     public boolean isNewMovie() {
@@ -110,13 +106,5 @@ public class Movie implements Serializable {
 
     public void setSummary(String summary) {
         this.summary = summary;
-    }
-
-    public float getAverageRating() {
-        return averageRating;
-    }
-
-    public void setAverageRating(float averageRating) {
-        this.averageRating = averageRating;
     }
 }

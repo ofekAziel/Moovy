@@ -47,20 +47,8 @@
         android:layout_height="35dp"
         android:layout_marginTop="10dp"
         android:textSize="18sp"
-        app:layout_constraintEnd_toStartOf="@+id/movieRating"
-        app:layout_constraintStart_toStartOf="@+id/movieName"
-        app:layout_constraintTop_toBottomOf="@+id/movieName" />
-
-    <TextView
-        android:id="@+id/movieRating"
-        android:layout_width="40dp"
-        android:layout_height="35dp"
-        android:layout_marginTop="10dp"
-        android:gravity="end"
-        android:text="4/5"
-        android:textSize="18sp"
-        android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="@+id/movieName"
+        app:layout_constraintStart_toStartOf="@+id/movieName"
         app:layout_constraintTop_toBottomOf="@+id/movieName" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

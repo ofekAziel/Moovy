@@ -1,7 +1,6 @@
 package com.example.moovy.activities;
 
 import android.content.Context;
-import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -13,7 +12,6 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
-import android.widget.RatingBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -32,13 +30,10 @@ import com.example.moovy.adapters.CommentAdapter;
 import com.example.moovy.models.Comment;
 import com.example.moovy.models.Movie;
 import com.example.moovy.models.User;
-import com.example.moovy.models.UserRating;
 import com.example.moovy.viewModel.CommentsViewModel;
 import com.example.moovy.viewModel.UserViewModel;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
@@ -50,10 +45,8 @@ public class DetailsFragment extends Fragment {
     private FirebaseFirestore db = FirebaseFirestore.getInstance();
     private Movie movie;
     private User currentUser;
-    private UserRating userRating;
-    private RatingBar ratingBar;
     private ImageButton editButton, returnButton;
-    private TextView titleTextView, genreTextView, actorsTextView, directorTextView, summaryTextView, averageRating;
+    private TextView titleTextView, genreTextView, actorsTextView, directorTextView, summaryTextView;
     private TextInputLayout commentInput;
     private ImageView imageView;
     private Button submitButton;
@@ -99,8 +92,6 @@ public class DetailsFragment extends Fragment {
 
     private void loadAfterUserLoad() {
         setUpScreenAdmin();
-        getRating();
-        ratingBarChangeListener();
         submitButtonClickListener();
     }
 
@@ -172,56 +163,6 @@ public class DetailsFragment extends Fragment {
         return new Comment(commentInput.getEditText().getText().toString(), currentUser, new Date());
     }
 
-    private void ratingBarChangeListener() {
-        ratingBar.setOnRatingBarChangeListener(new RatingBar.OnRatingBarChangeListener() {
-            @Override
-            public void onRatingChanged(RatingBar ratingBar, float rating, boolean fromUser) {
-                updateAverageRating(rating);
-                addRating(rating);
-            }
-        });
-    }
-
-    private void updateAverageRating(final float rating) {
-        final float prevUserRating = userRating == null ? (float) 0.0 : userRating.getRating();
-        db.collection("movies").document(movie.getId())
-                .collection("userRatings").get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
-            @Override
-            public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
-                int numOfRatings = queryDocumentSnapshots.size();
-                float numerator = movie.getAverageRating() * numOfRatings + rating - prevUserRating;
-                int divider = userRating == null ? numOfRatings + 1 : numOfRatings;
-                movie.setAverageRating(numerator / divider);
-                averageRating.setText(String.valueOf(movie.getAverageRating()).substring(0, 3));
-                db.collection("movies").document(movie.getId()).update("averageRating", movie.getAverageRating());
-            }
-        });
-    }
-
-    private void addRating(float rating) {
-        if (userRating == null) {
-            userRating = new UserRating(currentUser.getUserUid(), currentUser, rating);
-        } else {
-            userRating.setRating(rating);
-        }
-
-        db.collection("movies").document(movie.getId()).collection("userRatings")
-                .document(userRating.getId()).set(userRating);
-    }
-
-    private void getRating() {
-        // TODO: uncomment when getting user
-        /*
-        db.collection("movies").document(movie.getId()).collection("userRatings")
-                .document(currentUser.getUserUid()).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
-            @Override
-            public void onSuccess(DocumentSnapshot documentSnapshot) {
-                userRating = documentSnapshot.toObject(UserRating.class);
-                ratingBar.setRating(userRating == null ? (float) 0.0 : userRating.getRating());
-            }
-        });*/
-    }
-
     private void downloadMoviePhoto(Context context, final int photoHash) {
         StorageReference imageReference = FirebaseStorage.getInstance().getReference().child("moviePhotos/" + photoHash);
         GlideApp.with(context).load(imageReference).into(imageView);
@@ -236,9 +177,7 @@ public class DetailsFragment extends Fragment {
         actorsTextView = getView().findViewById(R.id.actorsTextView);
         directorTextView = getView().findViewById(R.id.directorTextView);
         summaryTextView = getView().findViewById(R.id.summaryTextView);
-        ratingBar = getView().findViewById(R.id.ratingBar);
         imageView = getView().findViewById(R.id.imageView);
-        averageRating = getView().findViewById(R.id.averageRating);
         commentInput = getView().findViewById(R.id.commentInput);
         initializeFields();
     }
@@ -255,7 +194,6 @@ public class DetailsFragment extends Fragment {
         actorsTextView.setText(movie.getStarring());
         directorTextView.setText(movie.getDirector());
         summaryTextView.setText(movie.getSummary());
-        averageRating.setText(String.valueOf(movie.getAverageRating()).substring(0, 3));
         //imageView.setImageBitmap(bitmap);
     }
 
