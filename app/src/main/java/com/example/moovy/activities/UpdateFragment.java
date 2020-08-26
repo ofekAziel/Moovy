@@ -33,8 +33,9 @@ import androidx.navigation.Navigation;
 
 import com.example.moovy.R;
 import com.example.moovy.models.Movie;
+import com.example.moovy.services.Utilities;
 import com.example.moovy.viewModel.MoviesViewModel;
-import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
@@ -74,7 +75,6 @@ public class UpdateFragment extends Fragment {
         imageViewClickListener();
         updateButtonClickListener();
         deleteButtonClickListener();
-        moviesViewModel.deleteAllMovies();
     }
 
     private void initMovie(Movie selectedMovie) {
@@ -134,13 +134,13 @@ public class UpdateFragment extends Fragment {
                     moviesViewModel.updateMovie(movie);
                 }
 
-                addImageToDb();
-                Navigation.findNavController(view).popBackStack(R.id.feedFragment,false);
+                addImageToDb(view);
             }
         });
     }
 
-    private void addImageToDb() {
+    private void addImageToDb(final View view) {
+        Utilities.makeSpinner(getActivity());
         Bitmap bitmap = ((BitmapDrawable) imageView.getDrawable()).getBitmap();
 
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -152,10 +152,11 @@ public class UpdateFragment extends Fragment {
         StorageReference imagesRef = storageRef.child("moviePhotos/" + movie.getPhotoHash());
 
         UploadTask uploadTask = imagesRef.putBytes(data);
-        uploadTask.addOnFailureListener(new OnFailureListener() {
+        uploadTask.addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
             @Override
-            public void onFailure(@NonNull Exception exception) {
-                showToast("Failed to upload image");
+            public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                Utilities.removeSpinner();
+                Navigation.findNavController(view).popBackStack(R.id.feedFragment,false);
             }
         });
     }

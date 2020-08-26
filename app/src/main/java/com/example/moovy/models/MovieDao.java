@@ -19,7 +19,7 @@ public interface MovieDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     void add(Movie movie);
 
-    @Update
+    @Update(onConflict = OnConflictStrategy.REPLACE)
     void update(Movie movie);
 
     @Delete

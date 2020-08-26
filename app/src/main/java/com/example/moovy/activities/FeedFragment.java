@@ -74,7 +74,7 @@ public class FeedFragment extends Fragment {
         userViewModel.getUser().observe(getViewLifecycleOwner(), new Observer<List<User>>() {
             @Override
             public void onChanged(List<User> users) {
-//                setUpScreenAdmin();
+                setUpScreenAdmin();
             }
         });
     }

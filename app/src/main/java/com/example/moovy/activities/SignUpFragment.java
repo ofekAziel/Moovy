@@ -18,6 +18,7 @@ import androidx.navigation.Navigation;
 
 import com.example.moovy.R;
 import com.example.moovy.models.User;
+import com.example.moovy.services.Utilities;
 import com.example.moovy.services.ValidationService;
 import com.example.moovy.viewModel.UserViewModel;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -39,8 +40,7 @@ public class SignUpFragment extends Fragment {
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         return inflater.inflate(R.layout.fragment_sign_up, container, false);
     }
 
@@ -87,6 +87,7 @@ public class SignUpFragment extends Fragment {
     }
 
     private void signUpFirebase(String usernameText, String passwordText, final User user) {
+        Utilities.makeSpinner(getActivity());
         firebaseAuth.createUserWithEmailAndPassword(usernameText, passwordText).addOnCompleteListener(getActivity(), new OnCompleteListener<AuthResult>() {
             @RequiresApi(api = Build.VERSION_CODES.KITKAT)
             @Override
@@ -96,10 +97,10 @@ public class SignUpFragment extends Fragment {
                 } else {
                     String userUid = Objects.requireNonNull(Objects.requireNonNull(task.getResult()).getUser()).getUid();
                     userViewModel.addUser(user, userUid);
+                    Utilities.removeSpinner();
                     Navigation.findNavController(getView()).navigate(R.id.action_signUpFragment_to_feedFragment);
                 }
             }
         });
     }
-
 }
