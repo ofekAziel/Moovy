@@ -139,8 +139,7 @@ public class UpdateFragment extends Fragment {
                     return;
                 }
 
-                addImageToDb();
-                Navigation.findNavController(view).popBackStack(R.id.feedFragment,false);
+                addImageToDb(view);
             }
         });
     }
