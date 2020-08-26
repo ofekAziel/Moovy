@@ -35,9 +35,6 @@ import com.example.moovy.R;
 import com.example.moovy.models.Movie;
 import com.example.moovy.viewModel.MoviesViewModel;
 import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.firebase.firestore.DocumentReference;
-import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
@@ -71,15 +68,21 @@ public class UpdateFragment extends Fragment {
         moviesViewModel = ViewModelProviders.of(this).get(MoviesViewModel.class);
         moviesViewModel.init();
         Movie selectedMovie = UpdateFragmentArgs.fromBundle(getArguments()).getMovie();
-        if(selectedMovie != null)
-            this.movie = selectedMovie;
-        else
-            this.movie = new Movie();
+        initMovie(selectedMovie);
         initFields();
         cancelButtonClickListener();
         imageViewClickListener();
         updateButtonClickListener();
         deleteButtonClickListener();
+        moviesViewModel.deleteAllMovies();
+    }
+
+    private void initMovie(Movie selectedMovie) {
+        if(!selectedMovie.isNewMovie()) {
+            this.movie = selectedMovie;
+        } else {
+            this.movie = new Movie();
+        }
     }
 
     public void deletePhoto() {
@@ -130,6 +133,7 @@ public class UpdateFragment extends Fragment {
                     setMovie();
                     moviesViewModel.updateMovie(movie);
                 }
+
                 addImageToDb();
                 Navigation.findNavController(view).popBackStack(R.id.feedFragment,false);
             }
@@ -195,7 +199,7 @@ public class UpdateFragment extends Fragment {
         updateButton = getView().findViewById(R.id.updateButton);
         deleteButton = getView().findViewById(R.id.deleteButton);
         cancelButton = getView().findViewById(R.id.cancelButton);
-        if (movie != null) {
+        if (!movie.isNewMovie()) {
             nameInput.setText(movie.getName());
             genreInput.setText(movie.getGenre());
             directorInput.setText(movie.getDirector());

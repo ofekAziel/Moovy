@@ -25,7 +25,6 @@ import com.example.moovy.models.User;
 import com.example.moovy.viewModel.MoviesViewModel;
 import com.example.moovy.viewModel.UserViewModel;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class FeedFragment extends Fragment {
@@ -75,7 +74,7 @@ public class FeedFragment extends Fragment {
         userViewModel.getUser().observe(getViewLifecycleOwner(), new Observer<List<User>>() {
             @Override
             public void onChanged(List<User> users) {
-                setUpScreenAdmin();
+//                setUpScreenAdmin();
             }
         });
     }

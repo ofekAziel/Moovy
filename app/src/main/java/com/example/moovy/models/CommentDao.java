@@ -19,4 +19,7 @@ public interface CommentDao {
 
     @Delete
     void delete(Comment comment);
+
+    @Query("delete from comments_table")
+    void deleteAll();
 }

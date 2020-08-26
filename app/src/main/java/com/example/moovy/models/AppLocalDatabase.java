@@ -6,7 +6,7 @@ import androidx.room.RoomDatabase;
 
 import com.example.moovy.application.MyApplication;
 
-@Database(entities = {Movie.class, User.class}, version = 2)
+@Database(entities = {Movie.class, User.class}, version = 3)
 public abstract class AppLocalDatabase extends RoomDatabase {
 
     private static AppLocalDatabase instance;

@@ -14,7 +14,6 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class MoviesRepository {
@@ -83,6 +82,10 @@ public class MoviesRepository {
         db.collection("movies").document(movie.getId()).delete();
     }
 
+    public void deleteAll() {
+        new DeleteAllMoviesAsyncTask(movieDao).execute();
+    }
+
     private static class UpdateMovieAsyncTask extends AsyncTask<Movie, Void, Void> {
         private MovieDao movieDao;
 
@@ -118,6 +121,20 @@ public class MoviesRepository {
         @Override
         protected Void doInBackground(Movie... movies) {
             movieDao.delete(movies[0]);
+            return null;
+        }
+    }
+
+    private static class DeleteAllMoviesAsyncTask extends AsyncTask<Void, Void, Void> {
+        private MovieDao movieDao;
+
+        private DeleteAllMoviesAsyncTask(MovieDao movieDao) {
+            this.movieDao = movieDao;
+        }
+
+        @Override
+        protected Void doInBackground(Void... voids) {
+            movieDao.deleteAll();
             return null;
         }
     }
