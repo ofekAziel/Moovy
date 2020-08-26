@@ -134,7 +134,13 @@ public class UpdateFragment extends Fragment {
                     moviesViewModel.updateMovie(movie);
                 }
 
-                addImageToDb(view);
+                if(!movie.isMovieProper()) {
+                    showToast("All fields must not be empty");
+                    return;
+                }
+
+                addImageToDb();
+                Navigation.findNavController(view).popBackStack(R.id.feedFragment,false);
             }
         });
     }

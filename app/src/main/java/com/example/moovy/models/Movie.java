@@ -47,6 +47,20 @@ public class Movie implements Serializable {
         this.photoHash = 0;
     }
 
+    public boolean isMovieProper() {
+        if(name.compareTo("") == 0)
+            return false;
+        if(genre.compareTo("") == 0)
+            return false;
+        if(director.compareTo("") == 0)
+            return false;
+        if(starring.compareTo("") == 0)
+            return false;
+        if(summary.compareTo("") == 0)
+            return false;
+        return true;
+    }
+
     public boolean isNewMovie() {
         return this.id.equals("");
     }
