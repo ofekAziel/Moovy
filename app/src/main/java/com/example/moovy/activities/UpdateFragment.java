@@ -121,7 +121,10 @@ public class UpdateFragment extends Fragment {
         });
     }
 
+
+
     private void updateButtonClickListener() {
+
         updateButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -132,6 +135,11 @@ public class UpdateFragment extends Fragment {
                 else {
                     setMovie();
                     moviesViewModel.updateMovie(movie);
+                }
+
+                if(!movie.isMovieProper()) {
+                    showToast("All fields must not be empty");
+                    return;
                 }
 
                 addImageToDb();
