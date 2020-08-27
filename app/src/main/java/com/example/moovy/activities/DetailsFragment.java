@@ -73,10 +73,11 @@ public class DetailsFragment extends Fragment {
         addUserObservable();
         commentsViewModel = ViewModelProviders.of(this).get(CommentsViewModel.class);
         commentsViewModel.init();
+        addCommentsObservable();
         setUpScreen();
+        downloadMoviePhoto(getActivity().getApplicationContext(), movie.getPhotoHash());
         editButtonClickListener();
         returnButtonClickListener();
-        downloadMoviePhoto(getActivity().getApplicationContext(), movie.getPhotoHash());
         commentInput.getEditText().addTextChangedListener(commentTextWatcher);
         initRecyclerView();
     }
@@ -192,7 +193,6 @@ public class DetailsFragment extends Fragment {
         actorsTextView.setText(movie.getStarring());
         directorTextView.setText(movie.getDirector());
         summaryTextView.setText(movie.getSummary());
-        //imageView.setImageBitmap(bitmap);
     }
 
     public void returnButtonClickListener() {

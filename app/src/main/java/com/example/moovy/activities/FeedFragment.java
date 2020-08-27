@@ -22,6 +22,7 @@ import com.example.moovy.R;
 import com.example.moovy.adapters.MoviesAdapter;
 import com.example.moovy.models.Movie;
 import com.example.moovy.models.User;
+import com.example.moovy.services.Utilities;
 import com.example.moovy.viewModel.MoviesViewModel;
 import com.example.moovy.viewModel.UserViewModel;
 
@@ -58,6 +59,7 @@ public class FeedFragment extends Fragment {
         userViewModel = ViewModelProviders.of(this).get(UserViewModel.class);
         userViewModel.init();
         addMoviesObservable();
+        Utilities.makeSpinner(getActivity());
         addUserObservable();
     }
 
@@ -74,7 +76,10 @@ public class FeedFragment extends Fragment {
         userViewModel.getUser().observe(getViewLifecycleOwner(), new Observer<List<User>>() {
             @Override
             public void onChanged(List<User> users) {
-                setUpScreenAdmin();
+                if (!users.isEmpty()) {
+                    Utilities.removeSpinner();
+                    setUpScreenAdmin();
+                }
             }
         });
     }
