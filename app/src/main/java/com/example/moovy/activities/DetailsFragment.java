@@ -33,7 +33,6 @@ import com.example.moovy.models.User;
 import com.example.moovy.viewModel.CommentsViewModel;
 import com.example.moovy.viewModel.UserViewModel;
 import com.google.android.material.textfield.TextInputLayout;
-import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
@@ -42,7 +41,6 @@ import java.util.List;
 
 public class DetailsFragment extends Fragment {
 
-    private FirebaseFirestore db = FirebaseFirestore.getInstance();
     private Movie movie;
     private User currentUser;
     private ImageButton editButton, returnButton;
@@ -53,6 +51,7 @@ public class DetailsFragment extends Fragment {
     private CommentAdapter commentAdapter;
     private UserViewModel userViewModel;
     private CommentsViewModel commentsViewModel;
+    private RecyclerView recyclerView;
 
     public DetailsFragment() {
 
@@ -73,18 +72,16 @@ public class DetailsFragment extends Fragment {
         addUserObservable();
         commentsViewModel = ViewModelProviders.of(this).get(CommentsViewModel.class);
         commentsViewModel.init();
-        addCommentsObservable();
         setUpScreen();
         downloadMoviePhoto(getActivity().getApplicationContext(), movie.getPhotoHash());
         editButtonClickListener();
         returnButtonClickListener();
         commentInput.getEditText().addTextChangedListener(commentTextWatcher);
-        initRecyclerView();
+        addCommentsObservable();
     }
 
-    private void initRecyclerView() {
-        RecyclerView recyclerView = getView().findViewById(R.id.comments);
-        commentAdapter = new CommentAdapter(getContext(), commentsViewModel.getComments(movie.getId()).getValue());
+    private void setCommentsAdapter() {
+        commentAdapter = new CommentAdapter(getContext(), commentsViewModel.getComments(movie.getDocumentId()).getValue());
         recyclerView.setAdapter(commentAdapter);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
     }
@@ -105,10 +102,10 @@ public class DetailsFragment extends Fragment {
     }
 
     private void addCommentsObservable() {
-        commentsViewModel.getComments(movie.getId()).observe(getViewLifecycleOwner(), new Observer<List<Comment>>() {
+        commentsViewModel.getComments(movie.getDocumentId()).observe(getViewLifecycleOwner(), new Observer<List<Comment>>() {
             @Override
             public void onChanged(List<Comment> comments) {
-                commentAdapter.notifyDataSetChanged();
+                setCommentsAdapter();
             }
         });
     }
@@ -150,7 +147,7 @@ public class DetailsFragment extends Fragment {
         submitButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                commentsViewModel.addComment(createComment(), movie.getId());
+                commentsViewModel.addComment(createComment(), movie.getDocumentId());
                 commentInput.getEditText().setText("");
                 closeKeyboard();
                 showToast("Comment submitted");
@@ -158,8 +155,14 @@ public class DetailsFragment extends Fragment {
         });
     }
 
+    public String getFullName(User user) {
+        String fullName = user.getFirstName() + " " + user.getLastName();
+        return fullName.trim();
+    }
+
     private Comment createComment() {
-        return new Comment(commentInput.getEditText().getText().toString(), currentUser, new Date());
+        return new Comment(commentInput.getEditText().getText().toString(), currentUser.getUserUid(),
+                getFullName(currentUser), new Date(), movie.getDocumentId());
     }
 
     private void downloadMoviePhoto(Context context, final int photoHash) {
@@ -178,6 +181,7 @@ public class DetailsFragment extends Fragment {
         summaryTextView = getView().findViewById(R.id.summaryTextView);
         imageView = getView().findViewById(R.id.imageView);
         commentInput = getView().findViewById(R.id.commentInput);
+        recyclerView = getView().findViewById(R.id.comments);
         initializeFields();
     }
 

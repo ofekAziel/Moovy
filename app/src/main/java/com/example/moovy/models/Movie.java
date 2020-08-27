@@ -6,6 +6,7 @@ import androidx.room.Ignore;
 import androidx.room.PrimaryKey;
 
 import java.io.Serializable;
+import java.util.UUID;
 
 @Entity(tableName = "movies_table")
 public class Movie implements Serializable {
@@ -26,7 +27,9 @@ public class Movie implements Serializable {
 
     private int photoHash;
 
-    public Movie(@NonNull String id, String name, String genre, String director, String starring, String summary, int photoHash) {
+    private String documentId;
+
+    public Movie(@NonNull String id, String name, String genre, String director, String starring, String summary, int photoHash, String documentId) {
         this.id = id;
         this.name = name;
         this.genre = genre;
@@ -34,35 +37,19 @@ public class Movie implements Serializable {
         this.starring = starring;
         this.summary = summary;
         this.photoHash = photoHash;
+        this.documentId = documentId;
     }
 
     @Ignore
     public Movie() {
-        this.id = "";
+        this.id = UUID.randomUUID().toString();
         this.name = "";
         this.genre = "";
         this.director = "";
         this.starring = "";
         this.summary = "";
         this.photoHash = 0;
-    }
-
-    public boolean isMovieProper() {
-        if(name.compareTo("") == 0)
-            return false;
-        if(genre.compareTo("") == 0)
-            return false;
-        if(director.compareTo("") == 0)
-            return false;
-        if(starring.compareTo("") == 0)
-            return false;
-        if(summary.compareTo("") == 0)
-            return false;
-        return true;
-    }
-
-    public boolean isNewMovie() {
-        return this.id.equals("");
+        this.documentId = "";
     }
 
     @NonNull
@@ -120,5 +107,13 @@ public class Movie implements Serializable {
 
     public void setSummary(String summary) {
         this.summary = summary;
+    }
+
+    public String getDocumentId() {
+        return documentId;
+    }
+
+    public void setDocumentId(String documentId) {
+        this.documentId = documentId;
     }
 }

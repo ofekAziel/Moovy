@@ -77,8 +77,12 @@ public class UpdateFragment extends Fragment {
         deleteButtonClickListener();
     }
 
+    public boolean isNewMovie(Movie movie) {
+        return movie.getDocumentId().equals("");
+    }
+
     private void initMovie(Movie selectedMovie) {
-        if(!selectedMovie.isNewMovie()) {
+        if(!isNewMovie(selectedMovie)) {
             this.movie = selectedMovie;
         } else {
             this.movie = new Movie();
@@ -121,11 +125,25 @@ public class UpdateFragment extends Fragment {
         });
     }
 
+    public boolean isMovieProper(Movie movie) {
+        if(movie.getName().compareTo("") == 0)
+            return false;
+        if(movie.getGenre().compareTo("") == 0)
+            return false;
+        if(movie.getDirector().compareTo("") == 0)
+            return false;
+        if(movie.getStarring().compareTo("") == 0)
+            return false;
+        if(movie.getSummary().compareTo("") == 0)
+            return false;
+        return true;
+    }
+
     private void updateButtonClickListener() {
         updateButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if(movie.isNewMovie()) {
+                if(isNewMovie(movie)) {
                     setMovie();
                     moviesViewModel.addMovie(movie);
                 }
@@ -134,7 +152,7 @@ public class UpdateFragment extends Fragment {
                     moviesViewModel.updateMovie(movie);
                 }
 
-                if(!movie.isMovieProper()) {
+                if(!isMovieProper(movie)) {
                     showToast("All fields must not be empty");
                     return;
                 }
@@ -205,7 +223,7 @@ public class UpdateFragment extends Fragment {
         updateButton = getView().findViewById(R.id.updateButton);
         deleteButton = getView().findViewById(R.id.deleteButton);
         cancelButton = getView().findViewById(R.id.cancelButton);
-        if (!movie.isNewMovie()) {
+        if (!isNewMovie(movie)) {
             nameInput.setText(movie.getName());
             genreInput.setText(movie.getGenre());
             directorInput.setText(movie.getDirector());

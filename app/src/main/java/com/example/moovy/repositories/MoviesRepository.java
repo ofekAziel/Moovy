@@ -42,7 +42,7 @@ public class MoviesRepository {
             public void onComplete(@NonNull Task<QuerySnapshot> task) {
                 for (DocumentSnapshot document : task.getResult().getDocuments()) {
                     Movie movie = document.toObject(Movie.class);
-                    movie.setId(document.getId());
+                    movie.setDocumentId(document.getId());
                     new AddMovieAsyncTask(movieDao).execute(movie);
                 }
             }
@@ -64,7 +64,7 @@ public class MoviesRepository {
     }
 
     private void updateMovieInFirebase(Movie movie) {
-        db.collection("movies").document(movie.getId()).update(
+        db.collection("movies").document(movie.getDocumentId()).update(
                 "name", movie.getName(),
                 "genre", movie.getGenre(),
                 "director", movie.getDirector(),
@@ -79,7 +79,7 @@ public class MoviesRepository {
     }
 
     private void deleteMovieFromFirebase(Movie movie) {
-        db.collection("movies").document(movie.getId()).delete();
+        db.collection("movies").document(movie.getDocumentId()).delete();
     }
 
     public void deleteAll() {

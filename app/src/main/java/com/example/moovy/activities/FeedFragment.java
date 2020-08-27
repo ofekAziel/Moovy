@@ -89,8 +89,13 @@ public class FeedFragment extends Fragment {
         movieGrid.setAdapter(moviesAdapter);
     }
 
+    public String getFullName(User user) {
+        String fullName = user.getFirstName() + " " + user.getLastName();
+        return fullName.trim();
+    }
+
     private void setUpScreenAdmin() {
-        String userDisplayName = "Hello " + userViewModel.getUser().getValue().get(0).getFullName();
+        String userDisplayName = "Hello " + getFullName(userViewModel.getUser().getValue().get(0));
         currentUser.setText(userDisplayName);
 
         if (!userViewModel.getUser().getValue().get(0).isAdmin()) {
@@ -104,7 +109,7 @@ public class FeedFragment extends Fragment {
             public void onClick(View v) {
                 NavController navCtrl = Navigation.findNavController(v);
                 FeedFragmentDirections.ActionFeedFragmentToUpdateFragment directions
-                        = FeedFragmentDirections.actionFeedFragmentToUpdateFragment (new Movie());
+                        = FeedFragmentDirections.actionFeedFragmentToUpdateFragment(new Movie());
                 navCtrl.navigate(directions);
             }
         });

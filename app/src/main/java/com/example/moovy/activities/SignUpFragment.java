@@ -93,6 +93,7 @@ public class SignUpFragment extends Fragment {
             @Override
             public void onComplete(@NonNull Task<AuthResult> task) {
                 if (!task.isSuccessful()) {
+                    Utilities.removeSpinner();
                     Toast.makeText(getContext(), "Cannot sign up", Toast.LENGTH_SHORT).show();
                 } else {
                     String userUid = Objects.requireNonNull(Objects.requireNonNull(task.getResult()).getUser()).getUid();
