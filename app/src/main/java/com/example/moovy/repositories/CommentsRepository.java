@@ -2,17 +2,18 @@ package com.example.moovy.repositories;
 
 import android.os.AsyncTask;
 
-import androidx.annotation.Nullable;
+import androidx.annotation.NonNull;
 import androidx.lifecycle.LiveData;
 
 import com.example.moovy.models.AppLocalDatabase;
 import com.example.moovy.models.Comment;
 import com.example.moovy.models.CommentDao;
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.List;
@@ -70,6 +71,23 @@ public class CommentsRepository {
                 .collection("comments").document(commentId).delete();
     }
 
+    public void deleteMovieComments(String movieId) {
+        new DeleteMovieCommentsAsyncTask(commentDao).execute(movieId);
+        deleteMovieCommentsFromFirebase(movieId);
+    }
+
+    private void deleteMovieCommentsFromFirebase(String movieId) {
+        final CollectionReference commentsReference =  db.collection("movies").document(movieId).collection("comments");
+        commentsReference.get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+            @Override
+            public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
+                for (DocumentSnapshot document : queryDocumentSnapshots.getDocuments()) {
+                    commentsReference.document(document.getId()).delete();
+                }
+            }
+        });
+    }
+
     private static class AddCommentAsyncTask extends AsyncTask<Comment, Void, Void> {
         private CommentDao commentDao;
 
@@ -94,6 +112,20 @@ public class CommentsRepository {
         @Override
         protected Void doInBackground(Comment... comments) {
             commentDao.delete(comments[0]);
+            return null;
+        }
+    }
+
+    private static class DeleteMovieCommentsAsyncTask extends AsyncTask<String, Void, Void> {
+        private CommentDao commentDao;
+
+        private DeleteMovieCommentsAsyncTask(CommentDao commentDao) {
+            this.commentDao = commentDao;
+        }
+
+        @Override
+        protected Void doInBackground(String... strings) {
+            commentDao.deleteMovieComments(strings[0]);
             return null;
         }
     }

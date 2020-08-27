@@ -34,6 +34,7 @@ import androidx.navigation.Navigation;
 import com.example.moovy.R;
 import com.example.moovy.models.Movie;
 import com.example.moovy.services.Utilities;
+import com.example.moovy.viewModel.CommentsViewModel;
 import com.example.moovy.viewModel.MoviesViewModel;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.storage.FirebaseStorage;
@@ -54,6 +55,7 @@ public class UpdateFragment extends Fragment {
     private Button updateButton, deleteButton, cancelButton;
     private Movie movie;
     private MoviesViewModel moviesViewModel;
+    private CommentsViewModel commentsViewModel;
 
     public UpdateFragment() {
     }
@@ -68,6 +70,8 @@ public class UpdateFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
         moviesViewModel = ViewModelProviders.of(this).get(MoviesViewModel.class);
         moviesViewModel.init();
+        commentsViewModel = ViewModelProviders.of(this).get(CommentsViewModel.class);
+        commentsViewModel.init();
         Movie selectedMovie = UpdateFragmentArgs.fromBundle(getArguments()).getMovie();
         initMovie(selectedMovie);
         initFields();
@@ -101,6 +105,7 @@ public class UpdateFragment extends Fragment {
             @Override
             public void onClick(View view) {
                 deletePhoto();
+                commentsViewModel.deleteMovieComments(movie.getDocumentId());
                 moviesViewModel.deleteMovie(movie);
                 Navigation.findNavController(view).popBackStack(R.id.feedFragment,false);
             }

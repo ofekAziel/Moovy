@@ -31,6 +31,10 @@ public class CommentsViewModel extends ViewModel {
         }
     }
 
+    public void deleteMovieComments(String movieId) {
+        commentsRepository.deleteMovieComments(movieId);
+    }
+
     public void deleteComment(String movieId, Comment comment) {
         if (comments != null) {
             commentsRepository.deleteComment(movieId, comment);
