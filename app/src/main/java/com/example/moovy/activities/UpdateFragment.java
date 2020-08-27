@@ -143,18 +143,18 @@ public class UpdateFragment extends Fragment {
         updateButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if(isNewMovie(movie)) {
-                    setMovie();
-                    moviesViewModel.addMovie(movie);
-                }
-                else {
-                    setMovie();
-                    moviesViewModel.updateMovie(movie);
-                }
+                setMovie();
 
-                if(!isMovieProper(movie)) {
+                if (isMovieProper(movie)) {
+                    if(isNewMovie(movie)) {
+                        setMovie();
+                        moviesViewModel.addMovie(movie);
+                    } else {
+                        setMovie();
+                        moviesViewModel.updateMovie(movie);
+                    }
+                } else {
                     showToast("All fields must not be empty");
-                    return;
                 }
 
                 addImageToDb(view);
