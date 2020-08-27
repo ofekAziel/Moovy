@@ -149,13 +149,10 @@ public class UpdateFragment extends Fragment {
             @Override
             public void onClick(View view) {
                 setMovie();
-
                 if (isMovieProper(movie)) {
                     if(isNewMovie(movie)) {
-                        setMovie();
                         moviesViewModel.addMovie(movie);
                     } else {
-                        setMovie();
                         moviesViewModel.updateMovie(movie);
                     }
                 } else {

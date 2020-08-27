@@ -9,7 +9,9 @@ import com.example.moovy.models.AppLocalDatabase;
 import com.example.moovy.models.Movie;
 import com.example.moovy.models.MovieDao;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
@@ -54,8 +56,14 @@ public class MoviesRepository {
         addMovieToFirebase(movie);
     }
 
-    private void addMovieToFirebase(Movie movie) {
-        db.collection("movies").add(movie);
+    private void addMovieToFirebase(final Movie movie) {
+        db.collection("movies").add(movie).addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
+            @Override
+            public void onSuccess(DocumentReference documentReference) {
+                movie.setDocumentId(documentReference.getId());
+                new AddMovieAsyncTask(movieDao).execute(movie);
+            }
+        });
     }
 
     public void updateMovie(Movie movie) {
