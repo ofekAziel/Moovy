@@ -67,8 +67,6 @@ public class DetailsFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        // TODO: get user from room
-        //user = (User) getIntent().getSerializableExtra("user");
         movie = DetailsFragmentArgs.fromBundle(getArguments()).getMovie();
         userViewModel = ViewModelProviders.of(this).get(UserViewModel.class);
         userViewModel.init();
@@ -195,22 +193,6 @@ public class DetailsFragment extends Fragment {
         directorTextView.setText(movie.getDirector());
         summaryTextView.setText(movie.getSummary());
         //imageView.setImageBitmap(bitmap);
-    }
-
-    public String saveImageToFile(String fileName) {
-        // TODO: pass image with ROOM
-        /*try {
-            Bitmap bitmap = ((BitmapDrawable)imageView.getDrawable()).getBitmap();
-            ByteArrayOutputStream bytes = new ByteArrayOutputStream();
-            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, bytes);
-            FileOutputStream fo = openFileOutput(fileName, Context.MODE_PRIVATE);
-            fo.write(bytes.toByteArray());
-            fo.close();
-        } catch (Exception e) {
-            e.printStackTrace();
-            fileName = null;
-        }*/
-        return fileName;
     }
 
     public void returnButtonClickListener() {
