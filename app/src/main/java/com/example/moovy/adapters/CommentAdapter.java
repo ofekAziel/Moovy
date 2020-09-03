@@ -40,7 +40,7 @@ public class CommentAdapter extends RecyclerView.Adapter<CommentAdapter.ViewHold
         Log.d(TAG, "onBindViewHolder: called.");
 
         //Glide.with(context) 14:35
-        holder.userName.setText(comments.get(position).getUser().getFullName());
+        holder.userName.setText(comments.get(position).getUserFullName());
         holder.content.setText(comments.get(position).getContent());
         SimpleDateFormat format = new SimpleDateFormat("dd/MM/YY HH:mm");
         holder.date.setText(format.format(comments.get(position).getDate()));

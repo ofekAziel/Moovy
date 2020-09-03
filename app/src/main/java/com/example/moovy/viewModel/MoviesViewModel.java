@@ -1,7 +1,6 @@
 package com.example.moovy.viewModel;
 
 import androidx.lifecycle.LiveData;
-import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
 import com.example.moovy.models.Movie;
@@ -41,6 +40,12 @@ public class MoviesViewModel extends ViewModel {
     public void deleteMovie(Movie movie) {
         if (movies != null) {
             moviesRepository.deleteMovie(movie);
+        }
+    }
+
+    public void deleteAllMovies() {
+        if (movies != null) {
+            moviesRepository.deleteAll();
         }
     }
 }

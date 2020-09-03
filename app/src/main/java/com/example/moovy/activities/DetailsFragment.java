@@ -1,7 +1,6 @@
 package com.example.moovy.activities;
 
 import android.content.Context;
-import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -13,7 +12,6 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
-import android.widget.RatingBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -32,13 +30,9 @@ import com.example.moovy.adapters.CommentAdapter;
 import com.example.moovy.models.Comment;
 import com.example.moovy.models.Movie;
 import com.example.moovy.models.User;
-import com.example.moovy.models.UserRating;
 import com.example.moovy.viewModel.CommentsViewModel;
 import com.example.moovy.viewModel.UserViewModel;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.textfield.TextInputLayout;
-import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
@@ -47,19 +41,17 @@ import java.util.List;
 
 public class DetailsFragment extends Fragment {
 
-    private FirebaseFirestore db = FirebaseFirestore.getInstance();
     private Movie movie;
     private User currentUser;
-    private UserRating userRating;
-    private RatingBar ratingBar;
     private ImageButton editButton, returnButton;
-    private TextView titleTextView, genreTextView, actorsTextView, directorTextView, summaryTextView, averageRating;
+    private TextView titleTextView, genreTextView, actorsTextView, directorTextView, summaryTextView;
     private TextInputLayout commentInput;
     private ImageView imageView;
     private Button submitButton;
     private CommentAdapter commentAdapter;
     private UserViewModel userViewModel;
     private CommentsViewModel commentsViewModel;
+    private RecyclerView recyclerView;
 
     public DetailsFragment() {
 
@@ -74,8 +66,6 @@ public class DetailsFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        // TODO: get user from room
-        //user = (User) getIntent().getSerializableExtra("user");
         movie = DetailsFragmentArgs.fromBundle(getArguments()).getMovie();
         userViewModel = ViewModelProviders.of(this).get(UserViewModel.class);
         userViewModel.init();
@@ -83,24 +73,21 @@ public class DetailsFragment extends Fragment {
         commentsViewModel = ViewModelProviders.of(this).get(CommentsViewModel.class);
         commentsViewModel.init();
         setUpScreen();
+        downloadMoviePhoto(getActivity().getApplicationContext(), movie.getPhotoHash());
         editButtonClickListener();
         returnButtonClickListener();
-        downloadMoviePhoto(getActivity().getApplicationContext(), movie.getPhotoHash());
         commentInput.getEditText().addTextChangedListener(commentTextWatcher);
-        initRecyclerView();
+        addCommentsObservable();
     }
 
-    private void initRecyclerView() {
-        RecyclerView recyclerView = getView().findViewById(R.id.comments);
-        commentAdapter = new CommentAdapter(getContext(), commentsViewModel.getComments(movie.getId()).getValue());
+    private void setCommentsAdapter() {
+        commentAdapter = new CommentAdapter(getContext(), commentsViewModel.getComments(movie.getDocumentId()).getValue());
         recyclerView.setAdapter(commentAdapter);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
     }
 
     private void loadAfterUserLoad() {
         setUpScreenAdmin();
-        getRating();
-        ratingBarChangeListener();
         submitButtonClickListener();
     }
 
@@ -115,10 +102,10 @@ public class DetailsFragment extends Fragment {
     }
 
     private void addCommentsObservable() {
-        commentsViewModel.getComments(movie.getId()).observe(getViewLifecycleOwner(), new Observer<List<Comment>>() {
+        commentsViewModel.getComments(movie.getDocumentId()).observe(getViewLifecycleOwner(), new Observer<List<Comment>>() {
             @Override
             public void onChanged(List<Comment> comments) {
-                commentAdapter.notifyDataSetChanged();
+                setCommentsAdapter();
             }
         });
     }
@@ -160,7 +147,7 @@ public class DetailsFragment extends Fragment {
         submitButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                commentsViewModel.addComment(createComment(), movie.getId());
+                commentsViewModel.addComment(createComment(), movie.getDocumentId());
                 commentInput.getEditText().setText("");
                 closeKeyboard();
                 showToast("Comment submitted");
@@ -168,58 +155,14 @@ public class DetailsFragment extends Fragment {
         });
     }
 
+    public String getFullName(User user) {
+        String fullName = user.getFirstName() + " " + user.getLastName();
+        return fullName.trim();
+    }
+
     private Comment createComment() {
-        return new Comment(commentInput.getEditText().getText().toString(), currentUser, new Date());
-    }
-
-    private void ratingBarChangeListener() {
-        ratingBar.setOnRatingBarChangeListener(new RatingBar.OnRatingBarChangeListener() {
-            @Override
-            public void onRatingChanged(RatingBar ratingBar, float rating, boolean fromUser) {
-                updateAverageRating(rating);
-                addRating(rating);
-            }
-        });
-    }
-
-    private void updateAverageRating(final float rating) {
-        final float prevUserRating = userRating == null ? (float) 0.0 : userRating.getRating();
-        db.collection("movies").document(movie.getId())
-                .collection("userRatings").get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
-            @Override
-            public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
-                int numOfRatings = queryDocumentSnapshots.size();
-                float numerator = movie.getAverageRating() * numOfRatings + rating - prevUserRating;
-                int divider = userRating == null ? numOfRatings + 1 : numOfRatings;
-                movie.setAverageRating(numerator / divider);
-                averageRating.setText(String.valueOf(movie.getAverageRating()).substring(0, 3));
-                db.collection("movies").document(movie.getId()).update("averageRating", movie.getAverageRating());
-            }
-        });
-    }
-
-    private void addRating(float rating) {
-        if (userRating == null) {
-            userRating = new UserRating(currentUser.getUserUid(), currentUser, rating);
-        } else {
-            userRating.setRating(rating);
-        }
-
-        db.collection("movies").document(movie.getId()).collection("userRatings")
-                .document(userRating.getId()).set(userRating);
-    }
-
-    private void getRating() {
-        // TODO: uncomment when getting user
-        /*
-        db.collection("movies").document(movie.getId()).collection("userRatings")
-                .document(currentUser.getUserUid()).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
-            @Override
-            public void onSuccess(DocumentSnapshot documentSnapshot) {
-                userRating = documentSnapshot.toObject(UserRating.class);
-                ratingBar.setRating(userRating == null ? (float) 0.0 : userRating.getRating());
-            }
-        });*/
+        return new Comment(commentInput.getEditText().getText().toString(), currentUser.getUserUid(),
+                getFullName(currentUser), new Date(), movie.getDocumentId());
     }
 
     private void downloadMoviePhoto(Context context, final int photoHash) {
@@ -236,10 +179,9 @@ public class DetailsFragment extends Fragment {
         actorsTextView = getView().findViewById(R.id.actorsTextView);
         directorTextView = getView().findViewById(R.id.directorTextView);
         summaryTextView = getView().findViewById(R.id.summaryTextView);
-        ratingBar = getView().findViewById(R.id.ratingBar);
         imageView = getView().findViewById(R.id.imageView);
-        averageRating = getView().findViewById(R.id.averageRating);
         commentInput = getView().findViewById(R.id.commentInput);
+        recyclerView = getView().findViewById(R.id.comments);
         initializeFields();
     }
 
@@ -255,24 +197,6 @@ public class DetailsFragment extends Fragment {
         actorsTextView.setText(movie.getStarring());
         directorTextView.setText(movie.getDirector());
         summaryTextView.setText(movie.getSummary());
-        averageRating.setText(String.valueOf(movie.getAverageRating()).substring(0, 3));
-        //imageView.setImageBitmap(bitmap);
-    }
-
-    public String saveImageToFile(String fileName) {
-        // TODO: pass image with ROOM
-        /*try {
-            Bitmap bitmap = ((BitmapDrawable)imageView.getDrawable()).getBitmap();
-            ByteArrayOutputStream bytes = new ByteArrayOutputStream();
-            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, bytes);
-            FileOutputStream fo = openFileOutput(fileName, Context.MODE_PRIVATE);
-            fo.write(bytes.toByteArray());
-            fo.close();
-        } catch (Exception e) {
-            e.printStackTrace();
-            fileName = null;
-        }*/
-        return fileName;
     }
 
     public void returnButtonClickListener() {

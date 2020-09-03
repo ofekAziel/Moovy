@@ -33,11 +33,10 @@ import androidx.navigation.Navigation;
 
 import com.example.moovy.R;
 import com.example.moovy.models.Movie;
+import com.example.moovy.services.Utilities;
+import com.example.moovy.viewModel.CommentsViewModel;
 import com.example.moovy.viewModel.MoviesViewModel;
-import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.firebase.firestore.DocumentReference;
-import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
@@ -56,6 +55,7 @@ public class UpdateFragment extends Fragment {
     private Button updateButton, deleteButton, cancelButton;
     private Movie movie;
     private MoviesViewModel moviesViewModel;
+    private CommentsViewModel commentsViewModel;
 
     public UpdateFragment() {
     }
@@ -70,16 +70,27 @@ public class UpdateFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
         moviesViewModel = ViewModelProviders.of(this).get(MoviesViewModel.class);
         moviesViewModel.init();
+        commentsViewModel = ViewModelProviders.of(this).get(CommentsViewModel.class);
+        commentsViewModel.init();
         Movie selectedMovie = UpdateFragmentArgs.fromBundle(getArguments()).getMovie();
-        if(selectedMovie != null)
-            this.movie = selectedMovie;
-        else
-            this.movie = new Movie();
+        initMovie(selectedMovie);
         initFields();
         cancelButtonClickListener();
         imageViewClickListener();
         updateButtonClickListener();
         deleteButtonClickListener();
+    }
+
+    public boolean isNewMovie(Movie movie) {
+        return movie.getDocumentId().equals("");
+    }
+
+    private void initMovie(Movie selectedMovie) {
+        if(!isNewMovie(selectedMovie)) {
+            this.movie = selectedMovie;
+        } else {
+            this.movie = new Movie();
+        }
     }
 
     public void deletePhoto() {
@@ -94,6 +105,7 @@ public class UpdateFragment extends Fragment {
             @Override
             public void onClick(View view) {
                 deletePhoto();
+                commentsViewModel.deleteMovieComments(movie.getDocumentId());
                 moviesViewModel.deleteMovie(movie);
                 Navigation.findNavController(view).popBackStack(R.id.feedFragment,false);
             }
@@ -118,25 +130,42 @@ public class UpdateFragment extends Fragment {
         });
     }
 
+    public boolean isMovieProper(Movie movie) {
+        if(movie.getName().compareTo("") == 0)
+            return false;
+        if(movie.getGenre().compareTo("") == 0)
+            return false;
+        if(movie.getDirector().compareTo("") == 0)
+            return false;
+        if(movie.getStarring().compareTo("") == 0)
+            return false;
+        if(movie.getSummary().compareTo("") == 0)
+            return false;
+        return true;
+    }
+
     private void updateButtonClickListener() {
         updateButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if(movie.isNewMovie()) {
-                    setMovie();
-                    moviesViewModel.addMovie(movie);
+                setMovie();
+                if (isMovieProper(movie)) {
+                    if(isNewMovie(movie)) {
+                        moviesViewModel.addMovie(movie);
+                    } else {
+                        moviesViewModel.updateMovie(movie);
+                    }
+                } else {
+                    showToast("All fields must not be empty");
                 }
-                else {
-                    setMovie();
-                    moviesViewModel.updateMovie(movie);
-                }
-                addImageToDb();
-                Navigation.findNavController(view).popBackStack(R.id.feedFragment,false);
+
+                addImageToDb(view);
             }
         });
     }
 
-    private void addImageToDb() {
+    private void addImageToDb(final View view) {
+        Utilities.makeSpinner(getActivity());
         Bitmap bitmap = ((BitmapDrawable) imageView.getDrawable()).getBitmap();
 
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -148,10 +177,11 @@ public class UpdateFragment extends Fragment {
         StorageReference imagesRef = storageRef.child("moviePhotos/" + movie.getPhotoHash());
 
         UploadTask uploadTask = imagesRef.putBytes(data);
-        uploadTask.addOnFailureListener(new OnFailureListener() {
+        uploadTask.addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
             @Override
-            public void onFailure(@NonNull Exception exception) {
-                showToast("Failed to upload image");
+            public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                Utilities.removeSpinner();
+                Navigation.findNavController(view).popBackStack(R.id.feedFragment,false);
             }
         });
     }
@@ -195,7 +225,7 @@ public class UpdateFragment extends Fragment {
         updateButton = getView().findViewById(R.id.updateButton);
         deleteButton = getView().findViewById(R.id.deleteButton);
         cancelButton = getView().findViewById(R.id.cancelButton);
-        if (movie != null) {
+        if (!isNewMovie(movie)) {
             nameInput.setText(movie.getName());
             genreInput.setText(movie.getGenre());
             directorInput.setText(movie.getDirector());

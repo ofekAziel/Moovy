@@ -6,13 +6,14 @@ import androidx.room.Ignore;
 import androidx.room.PrimaryKey;
 
 import java.io.Serializable;
+import java.util.UUID;
 
 @Entity(tableName = "users_table")
 public class User implements Serializable {
 
     @NonNull
     @PrimaryKey
-    private String userUid;
+    private String id;
 
     private String firstName;
 
@@ -20,20 +21,35 @@ public class User implements Serializable {
 
     private boolean isAdmin;
 
-    public User(String firstName, String lastName) {
-        this.userUid = "1";
+    private String userUid;
+
+    public User(@NonNull String id, String firstName, String lastName, boolean isAdmin, String userUid) {
+        this.id = id;
         this.firstName = firstName;
         this.lastName = lastName;
+        this.isAdmin = isAdmin;
+        this.userUid = userUid;
+    }
+
+    @Ignore
+    public User(String firstName, String lastName) {
+        this.id = UUID.randomUUID().toString();
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.userUid = "";
     }
 
     @Ignore
     public User() {
-        this.userUid = "1";
     }
 
-    public String getFullName() {
-        String fullName = firstName + " " + lastName;
-        return fullName.trim();
+    @NonNull
+    public String getId() {
+        return id;
+    }
+
+    public void setId(@NonNull String id) {
+        this.id = id;
     }
 
     public String getFirstName() {
@@ -52,20 +68,19 @@ public class User implements Serializable {
         this.lastName = lastName;
     }
 
-    @NonNull
-    public String getUserUid() {
-        return userUid;
-    }
-
-    public void setUserUid(@NonNull String userUid) {
-        this.userUid = userUid;
-    }
-
     public boolean isAdmin() {
         return isAdmin;
     }
 
     public void setAdmin(boolean admin) {
         isAdmin = admin;
+    }
+
+    public String getUserUid() {
+        return userUid;
+    }
+
+    public void setUserUid(String userUid) {
+        this.userUid = userUid;
     }
 }

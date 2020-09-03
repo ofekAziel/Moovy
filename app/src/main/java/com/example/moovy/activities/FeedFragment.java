@@ -22,10 +22,10 @@ import com.example.moovy.R;
 import com.example.moovy.adapters.MoviesAdapter;
 import com.example.moovy.models.Movie;
 import com.example.moovy.models.User;
+import com.example.moovy.services.Utilities;
 import com.example.moovy.viewModel.MoviesViewModel;
 import com.example.moovy.viewModel.UserViewModel;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class FeedFragment extends Fragment {
@@ -59,6 +59,7 @@ public class FeedFragment extends Fragment {
         userViewModel = ViewModelProviders.of(this).get(UserViewModel.class);
         userViewModel.init();
         addMoviesObservable();
+        Utilities.makeSpinner(getActivity());
         addUserObservable();
     }
 
@@ -75,7 +76,10 @@ public class FeedFragment extends Fragment {
         userViewModel.getUser().observe(getViewLifecycleOwner(), new Observer<List<User>>() {
             @Override
             public void onChanged(List<User> users) {
-                setUpScreenAdmin();
+                if (!users.isEmpty()) {
+                    Utilities.removeSpinner();
+                    setUpScreenAdmin();
+                }
             }
         });
     }
@@ -85,8 +89,13 @@ public class FeedFragment extends Fragment {
         movieGrid.setAdapter(moviesAdapter);
     }
 
+    public String getFullName(User user) {
+        String fullName = user.getFirstName() + " " + user.getLastName();
+        return fullName.trim();
+    }
+
     private void setUpScreenAdmin() {
-        String userDisplayName = "Hello " + userViewModel.getUser().getValue().get(0).getFullName();
+        String userDisplayName = "Hello " + getFullName(userViewModel.getUser().getValue().get(0));
         currentUser.setText(userDisplayName);
 
         if (!userViewModel.getUser().getValue().get(0).isAdmin()) {
@@ -100,7 +109,7 @@ public class FeedFragment extends Fragment {
             public void onClick(View v) {
                 NavController navCtrl = Navigation.findNavController(v);
                 FeedFragmentDirections.ActionFeedFragmentToUpdateFragment directions
-                        = FeedFragmentDirections.actionFeedFragmentToUpdateFragment (new Movie());
+                        = FeedFragmentDirections.actionFeedFragmentToUpdateFragment(new Movie());
                 navCtrl.navigate(directions);
             }
         });

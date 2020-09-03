@@ -1,7 +1,6 @@
 package com.example.moovy.viewModel;
 
 import androidx.lifecycle.LiveData;
-import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
 import com.example.moovy.models.Comment;
@@ -12,7 +11,7 @@ import java.util.List;
 public class CommentsViewModel extends ViewModel {
 
     private CommentsRepository commentsRepository;
-    private MutableLiveData<List<Comment>> comments;
+    private LiveData<List<Comment>> comments;
 
     public void init() {
         commentsRepository = CommentsRepository.getInstance();
@@ -32,9 +31,13 @@ public class CommentsViewModel extends ViewModel {
         }
     }
 
-    public void deleteComment(String movieId, String commentId) {
+    public void deleteMovieComments(String movieId) {
+        commentsRepository.deleteMovieComments(movieId);
+    }
+
+    public void deleteComment(String movieId, Comment comment) {
         if (comments != null) {
-            commentsRepository.deleteComment(movieId, commentId);
+            commentsRepository.deleteComment(movieId, comment);
         }
     }
 }

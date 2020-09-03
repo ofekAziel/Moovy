@@ -55,11 +55,9 @@ public class MoviesAdapter extends BaseAdapter {
     private void setMovieCardFields(int position, View view) {
         TextView movieName = view.findViewById(R.id.movieName);
         TextView movieGenre = view.findViewById(R.id.movieGenre);
-        TextView movieRating = view.findViewById(R.id.movieRating);
 
         movieName.setText(movies.get(position).getName());
         movieGenre.setText(movies.get(position).getGenre());
-        movieRating.setText(String.valueOf(movies.get(position).getAverageRating()).substring(0, 3));
     }
 
     private void downloadMoviePhoto(View view, final int photoHash) {
@@ -76,7 +74,7 @@ public class MoviesAdapter extends BaseAdapter {
             public void onClick(View v) {
                 NavController navCtrl = Navigation.findNavController(v);
                 FeedFragmentDirections.ActionFeedFragmentToDetailsFragment directions
-                        = FeedFragmentDirections.actionFeedFragmentToDetailsFragment (selectedMovie);
+                        = FeedFragmentDirections.actionFeedFragmentToDetailsFragment(selectedMovie);
                 navCtrl.navigate(directions);
             }
         });

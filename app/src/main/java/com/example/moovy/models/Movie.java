@@ -6,6 +6,7 @@ import androidx.room.Ignore;
 import androidx.room.PrimaryKey;
 
 import java.io.Serializable;
+import java.util.UUID;
 
 @Entity(tableName = "movies_table")
 public class Movie implements Serializable {
@@ -26,9 +27,9 @@ public class Movie implements Serializable {
 
     private int photoHash;
 
-    private float averageRating;
+    private String documentId;
 
-    public Movie(@NonNull String id, String name, String genre, String director, String starring, String summary, int photoHash, float averageRating) {
+    public Movie(@NonNull String id, String name, String genre, String director, String starring, String summary, int photoHash, String documentId) {
         this.id = id;
         this.name = name;
         this.genre = genre;
@@ -36,23 +37,19 @@ public class Movie implements Serializable {
         this.starring = starring;
         this.summary = summary;
         this.photoHash = photoHash;
-        this.averageRating = averageRating;
+        this.documentId = documentId;
     }
 
     @Ignore
     public Movie() {
-        this.id = "";
+        this.id = UUID.randomUUID().toString();
         this.name = "";
         this.genre = "";
         this.director = "";
         this.starring = "";
         this.summary = "";
         this.photoHash = 0;
-        this.averageRating = (float) 0.0;
-    }
-
-    public boolean isNewMovie() {
-        return this.id.equals("");
+        this.documentId = "";
     }
 
     @NonNull
@@ -112,11 +109,11 @@ public class Movie implements Serializable {
         this.summary = summary;
     }
 
-    public float getAverageRating() {
-        return averageRating;
+    public String getDocumentId() {
+        return documentId;
     }
 
-    public void setAverageRating(float averageRating) {
-        this.averageRating = averageRating;
+    public void setDocumentId(String documentId) {
+        this.documentId = documentId;
     }
 }

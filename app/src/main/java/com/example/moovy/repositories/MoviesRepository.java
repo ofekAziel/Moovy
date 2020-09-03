@@ -9,12 +9,13 @@ import com.example.moovy.models.AppLocalDatabase;
 import com.example.moovy.models.Movie;
 import com.example.moovy.models.MovieDao;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class MoviesRepository {
@@ -43,7 +44,7 @@ public class MoviesRepository {
             public void onComplete(@NonNull Task<QuerySnapshot> task) {
                 for (DocumentSnapshot document : task.getResult().getDocuments()) {
                     Movie movie = document.toObject(Movie.class);
-                    movie.setId(document.getId());
+                    movie.setDocumentId(document.getId());
                     new AddMovieAsyncTask(movieDao).execute(movie);
                 }
             }
@@ -55,8 +56,14 @@ public class MoviesRepository {
         addMovieToFirebase(movie);
     }
 
-    private void addMovieToFirebase(Movie movie) {
-        db.collection("movies").add(movie);
+    private void addMovieToFirebase(final Movie movie) {
+        db.collection("movies").add(movie).addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
+            @Override
+            public void onSuccess(DocumentReference documentReference) {
+                movie.setDocumentId(documentReference.getId());
+                new AddMovieAsyncTask(movieDao).execute(movie);
+            }
+        });
     }
 
     public void updateMovie(Movie movie) {
@@ -65,7 +72,7 @@ public class MoviesRepository {
     }
 
     private void updateMovieInFirebase(Movie movie) {
-        db.collection("movies").document(movie.getId()).update(
+        db.collection("movies").document(movie.getDocumentId()).update(
                 "name", movie.getName(),
                 "genre", movie.getGenre(),
                 "director", movie.getDirector(),
@@ -80,7 +87,11 @@ public class MoviesRepository {
     }
 
     private void deleteMovieFromFirebase(Movie movie) {
-        db.collection("movies").document(movie.getId()).delete();
+        db.collection("movies").document(movie.getDocumentId()).delete();
+    }
+
+    public void deleteAll() {
+        new DeleteAllMoviesAsyncTask(movieDao).execute();
     }
 
     private static class UpdateMovieAsyncTask extends AsyncTask<Movie, Void, Void> {
@@ -118,6 +129,20 @@ public class MoviesRepository {
         @Override
         protected Void doInBackground(Movie... movies) {
             movieDao.delete(movies[0]);
+            return null;
+        }
+    }
+
+    private static class DeleteAllMoviesAsyncTask extends AsyncTask<Void, Void, Void> {
+        private MovieDao movieDao;
+
+        private DeleteAllMoviesAsyncTask(MovieDao movieDao) {
+            this.movieDao = movieDao;
+        }
+
+        @Override
+        protected Void doInBackground(Void... voids) {
+            movieDao.deleteAll();
             return null;
         }
     }
