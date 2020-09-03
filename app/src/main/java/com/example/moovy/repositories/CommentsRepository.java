@@ -2,18 +2,18 @@ package com.example.moovy.repositories;
 
 import android.os.AsyncTask;
 
-import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.lifecycle.LiveData;
 
 import com.example.moovy.models.AppLocalDatabase;
 import com.example.moovy.models.Comment;
 import com.example.moovy.models.CommentDao;
-import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.List;
@@ -39,9 +39,9 @@ public class CommentsRepository {
     }
 
     private void loadCommentsFromFirebase(String movieId) {
-        db.collection("movies").document(movieId).collection("comments").get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+        db.collection("movies").document(movieId).collection("comments").addSnapshotListener(new EventListener<QuerySnapshot>() {
             @Override
-            public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
+            public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots, @Nullable FirebaseFirestoreException e) {
                 for (DocumentSnapshot document : queryDocumentSnapshots.getDocuments()) {
                     Comment comment = document.toObject(Comment.class);
                     comment.setDocumentId(document.getId());
@@ -50,6 +50,19 @@ public class CommentsRepository {
             }
         });
     }
+
+//    private void loadCommentsFromFirebase(String movieId) {
+//        db.collection("movies").document(movieId).collection("comments").get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+//            @Override
+//            public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
+//                for (DocumentSnapshot document : queryDocumentSnapshots.getDocuments()) {
+//                    Comment comment = document.toObject(Comment.class);
+//                    comment.setDocumentId(document.getId());
+//                    new AddCommentAsyncTask(commentDao).execute(comment);
+//                }
+//            }
+//        });
+//    }
 
     public void addComment(Comment comment, String movieId) {
         new AddCommentAsyncTask(commentDao).execute(comment);
